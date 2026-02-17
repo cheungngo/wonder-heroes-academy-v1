@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Rainbow Rule Race - Wonder Heroes Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#0f0c29 0%,#302b63 50%,#24243e 100%);display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
+
+.bg-star{position:fixed;border-radius:50%;background:#fff;pointer-events:none;opacity:0;animation:twk var(--d,3s) ease-in-out infinite}
+@keyframes twk{0%,100%{opacity:.12;transform:scale(.7)}50%{opacity:.7;transform:scale(1.15)}}
+
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;z-index:100;flex-shrink:0;position:relative}
+.btn-icon{width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .15s,background .15s}
+.btn-icon:active{transform:scale(.9);background:rgba(255,255,255,.3)}
+.top-mid{text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px}
+.top-mid .sc{font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5)}
+.top-mid .st{font-size:11px;opacity:.75;display:flex;gap:10px}
+.top-mid .st .ok{color:#6bcb77}.top-mid .st .nk{color:#ff6b6b}
+
+.lang-dd{position:absolute;top:54px;left:12px;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:200;overflow:hidden;display:none}
+.lang-dd.show{display:block}
+.lang-dd button{padding:12px 20px;font-size:16px;cursor:pointer;border:none;background:#fff;width:100%;text-align:left;display:block;transition:background .15s}
+.lang-dd button:active{background:#f0e6ff}
+.lang-dd button.sel{background:#e8d5ff;font-weight:700}
+
+.screen{display:none;width:100%;flex:1;flex-direction:column;align-items:center;overflow:hidden;min-height:0}
+.screen.active{display:flex}
+
+.start-screen{justify-content:center;gap:16px;text-align:center;padding:20px}
+.g-title{font-size:28px;font-weight:900;color:#fff;line-height:1.3;text-shadow:0 3px 15px rgba(165,94,234,.8),0 0 40px rgba(165,94,234,.3)}
+.g-sub{color:rgba(255,255,255,.65);font-size:14px;max-width:300px}
+.big-icon{font-size:72px;animation:uBob 3s ease-in-out infinite}
+@keyframes uBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+.start-btn{padding:16px 40px;font-size:20px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#ff6b6b,#ffa502,#ffd93d,#2ed573,#1e90ff,#a55eea);background-size:400% 400%;animation:rbShift 4s ease infinite;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);box-shadow:0 6px 25px rgba(155,89,182,.5);transition:transform .15s}
+@keyframes rbShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.start-btn:active{transform:scale(.95)}
+.hint{color:rgba(255,255,255,.4);font-size:12px}
+
+.game-wrap{flex:1;width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;padding:0 10px;min-height:0}
+
+.timer-wrap{width:100%;max-width:400px;height:14px;background:rgba(255,255,255,.1);border-radius:7px;margin:4px auto 6px;overflow:hidden;flex-shrink:0}
+.timer-fill{height:100%;width:100%;border-radius:7px;background:linear-gradient(90deg,#ff6b6b,#ffa502,#ffd93d,#2ed573,#1e90ff,#a55eea);transition:width .15s linear}
+.timer-fill.low{animation:tPulse .4s ease infinite}
+@keyframes tPulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.rb-trail{display:flex;gap:5px;justify-content:center;margin:2px 0 6px;flex-shrink:0}
+.rb-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12);transition:all .3s cubic-bezier(.175,.885,.32,1.275)}
+.rb-dot.lit{border-color:transparent;transform:scale(1.35);box-shadow:0 0 10px var(--c)}
+
+.rule-area{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.unicorn{font-size:40px;transition:transform .3s}
+.unicorn.spin{animation:uSpin .6s cubic-bezier(.68,-.55,.265,1.55)}
+@keyframes uSpin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.4)}100%{transform:rotate(360deg) scale(1)}}
+.rule-bub{background:rgba(255,255,255,.93);border-radius:16px;padding:7px 16px;font-size:15px;font-weight:800;box-shadow:0 3px 12px rgba(0,0,0,.15);text-align:center;color:#333;min-width:170px;position:relative;animation:bPop .3s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bPop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.rule-bub::after{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:9px solid rgba(255,255,255,.93)}
+.hi{display:inline-block;padding:2px 8px;border-radius:6px;font-size:16px;margin-left:3px;vertical-align:middle}
+.hi.w-hi{background:#ff6b6b;color:#fff}
+.hi.c-hi{background:#2e86de;color:#fff}
+
+.word-area{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%}
+.stroop-word{font-size:72px;font-weight:900;text-transform:uppercase;text-shadow:0 4px 24px rgba(0,0,0,.4),0 0 50px currentColor;letter-spacing:6px;opacity:1;transition:opacity .1s}
+.stroop-word.pop{animation:wPop .25s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes wPop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+
+.btn-area{width:100%;padding:6px 4px;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,10px)}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:380px;margin:0 auto;width:100%}
+.color-btn{height:70px;border-radius:18px;border:3px solid rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5);transition:transform .12s,border-color .12s;letter-spacing:1px;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden}
+.color-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 55%);border-radius:15px;pointer-events:none}
+.color-btn:active:not(:disabled){transform:scale(.93)}
+.color-btn:disabled{pointer-events:none}
+.color-btn.c-ok{border-color:#fff!important;box-shadow:0 0 30px rgba(255,255,255,.7);animation:bOk .35s ease}
+@keyframes bOk{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+.color-btn.c-bad{animation:bBad .35s ease}
+@keyframes bBad{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+.splash{position:fixed;border-radius:50%;border:3px solid;width:12px;height:12px;margin-left:-6px;margin-top:-6px;z-index:150;pointer-events:none;animation:splOut .55s ease-out forwards}
+@keyframes splOut{0%{transform:scale(1);opacity:1}100%{transform:scale(10);opacity:0}}
+.sparkle{position:fixed;font-size:18px;z-index:150;pointer-events:none;animation:spUp .7s ease-out forwards}
+@keyframes spUp{0%{transform:translateY(0) scale(.4);opacity:1}100%{transform:translateY(-55px) scale(1.2);opacity:0}}
+.sc-pop{position:fixed;font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 2px 8px rgba(0,0,0,.4);z-index:150;pointer-events:none;animation:scFly .8s ease-out forwards}
+@keyframes scFly{0%{transform:translateY(0) scale(.5);opacity:1}100%{transform:translateY(-50px) scale(1.1);opacity:0}}
+.confetti{position:fixed;z-index:200;pointer-events:none;animation:cFall 1.3s ease-out forwards}
+@keyframes cFall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}100%{transform:translateY(55vh) rotate(720deg) scale(.2);opacity:0}}
+.flash-ov{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .1s}
+.combo-box{position:fixed;top:58px;left:50%;transform:translateX(-50%);color:#ffd700;font-size:20px;font-weight:900;text-shadow:0 2px 10px rgba(255,215,0,.6);z-index:80;opacity:0;transition:opacity .3s;pointer-events:none}
+.combo-box.show{opacity:1;animation:cbP .35s ease}
+@keyframes cbP{0%{transform:translateX(-50%) scale(.5)}50%{transform:translateX(-50%) scale(1.25)}100%{transform:translateX(-50%) scale(1)}}
+.notify{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);color:#fff;padding:18px 32px;border-radius:20px;font-size:22px;font-weight:900;z-index:300;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.4);transition:transform .45s cubic-bezier(.175,.885,.32,1.275);pointer-events:none;white-space:nowrap}
+.notify.show{transform:translate(-50%,-50%) scale(1)}
+.notify.n-lvl{background:linear-gradient(135deg,#ffd700,#ff6b6b,#ff9ff3)}
+.notify.n-rb{background:linear-gradient(135deg,#ff6b6b,#ffa502,#ffd93d,#2ed573,#1e90ff,#a55eea);background-size:200% 200%;animation:rbShift 2s ease infinite}
+.notify.n-rule{background:linear-gradient(135deg,#a55eea,#4ecdc4)}
+
+.zipp{position:fixed;bottom:10px;right:10px;font-size:32px;z-index:80;pointer-events:none}
+.zipp.dance{animation:zD .6s ease}
+@keyframes zD{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}75%{transform:rotate(-8deg) scale(1.15)}100%{transform:rotate(0) scale(1)}}
+.z-bub{position:fixed;bottom:46px;right:8px;background:#fff;border-radius:14px;padding:5px 11px;font-size:11px;font-weight:700;max-width:115px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:80;opacity:0;transition:opacity .3s;text-align:center;pointer-events:none}
+.z-bub.show{opacity:1}
+.z-bub::after{content:'';position:absolute;bottom:-7px;right:12px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #fff}
+
+.end-screen{justify-content:center;gap:12px;text-align:center;padding:20px}
+.end-title{font-size:30px;font-weight:900;color:#ffd700;text-shadow:0 3px 15px rgba(255,215,0,.5)}
+.end-stats{color:#fff;font-size:16px;line-height:2.2}
+.end-stats .v{color:#ffd700;font-weight:700;font-size:22px}
+.stars-r{font-size:36px;letter-spacing:6px}
+.again-btn{padding:14px 36px;font-size:18px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#a55eea,#4ecdc4);color:#fff;box-shadow:0 4px 15px rgba(165,94,234,.4);transition:transform .15s}
+.again-btn:active{transform:scale(.95)}
+
+@media(max-height:660px){.stroop-word{font-size:56px;letter-spacing:4px}.color-btn{height:60px;font-size:16px}.unicorn{font-size:32px}.rule-bub{font-size:13px;padding:5px 12px}.rb-dot{width:14px;height:14px}.rb-trail{margin:1px 0 4px}}
+@media(max-height:560px){.stroop-word{font-size:42px;letter-spacing:3px}.color-btn{height:50px;font-size:14px;border-radius:14px}.unicorn{font-size:26px}.rule-bub{font-size:12px;padding:4px 10px;min-width:140px}.rule-area{gap:1px}.timer-wrap{margin:2px auto 3px;height:10px}.rb-trail{gap:3px;margin:1px 0 3px}.rb-dot{width:12px;height:12px}.btn-area{padding:3px 4px}.btn-grid{gap:8px}}
+@media(min-height:800px){.stroop-word{font-size:88px;letter-spacing:8px}.color-btn{height:80px;font-size:20px}.unicorn{font-size:48px}.rule-bub{font-size:17px;padding:8px 18px}}
+</style>
+</head>
+<body>
+
+<div id="bgC"></div>
+
+<div class="top-bar">
+  <button class="btn-icon" id="langBtn">🌐</button>
+  <div class="lang-dd" id="langDd">
+    <button class="sel" id="lEN">🇺🇸 English</button>
+    <button id="lZH">🇹🇼 繁體中文</button>
+  </div>
+  <div class="top-mid">
+    <div class="sc" id="scV">0</div>
+    <div class="st"><span class="ok" id="okV">✅ 0</span><span class="nk" id="nkV">❌ 0</span></div>
+  </div>
+  <a href="index.html" class="btn-icon">🏠</a>
+</div>
+
+<div class="screen start-screen active" id="scrS">
+  <div class="big-icon">🦄</div>
+  <div class="g-title" id="txTitle">Rainbow Rule Race</div>
+  <div class="g-sub" id="txSub">The unicorn shouts the rule — tap the right color before the rainbow fades!</div>
+  <button class="start-btn" id="btnStart">🌈 START RACE! 🌈</button>
+  <div class="hint" id="txHint">Read the rule carefully each time!</div>
+</div>
+
+<div class="screen" id="scrG">
+  <div class="game-wrap">
+    <div class="timer-wrap"><div class="timer-fill" id="tBar"></div></div>
+    <div class="rb-trail" id="rbTrail"></div>
+    <div class="rule-area">
+      <div class="unicorn" id="uni">🦄</div>
+      <div class="rule-bub" id="rBub"></div>
+    </div>
+    <div class="word-area">
+      <div class="stroop-word" id="sWord"></div>
+    </div>
+    <div class="btn-area">
+      <div class="btn-grid" id="bGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen end-screen" id="scrE">
+  <div style="font-size:56px">🌈</div>
+  <div class="end-title" id="txEnd">Time's Up!</div>
+  <div class="end-stats" id="eStats"></div>
+  <div class="stars-r" id="starsR"></div>
+  <button class="again-btn" id="btnAgain">🌈 Race Again!</button>
+</div>
+
+<div class="zipp" id="zipp">🦊</div>
+<div class="z-bub" id="zBub"></div>
+<div class="combo-box" id="cmbB"></div>
+<div class="notify n-lvl" id="nLvl"></div>
+<div class="notify n-rb" id="nRb"></div>
+<div class="notify n-rule" id="nRule"></div>
+<div class="flash-ov" id="flashO"></div>
+
+<script>
+const TX={
+en:{title:'Rainbow Rule Race',sub:'The unicorn shouts the rule — tap the right color before the rainbow fades!',start:'🌈 START RACE! 🌈',hint:'Read the rule carefully each time!',rWord:'📖 Tap the',rWordH:'WORD',rInk:'🎨 Tap the',rInkH:'COLOR',end:"Time's Up!",correct:'Correct',wrong:'Oops',score:'Score',best:'Best Combo',again:'🌈 Race Again!',lvl:'⬆️ LEVEL UP!',combo:'COMBO',rainbow:'🌈 RAINBOW!',newRule:'✨ NEW RULE!'},
+zh:{title:'彩虹規則競速',sub:'獨角獸喊出規則 — 在彩虹消失前點擊正確答案！',start:'🌈 開始競速！🌈',hint:'每次都要仔細看規則喔！',rWord:'📖 點擊',rWordH:'文字',rInk:'🎨 點擊',rInkH:'顏色',end:'時間到！',correct:'正確',wrong:'失誤',score:'分數',best:'最佳連擊',again:'🌈 再來一次！',lvl:'⬆️ 升級了！',combo:'連擊',rainbow:'🌈 彩虹！',newRule:'✨ 新規則！'}
+};
+const COLORS=[
+{id:'red',hex:'#FF4757',en:'RED',zh:'紅色'},
+{id:'blue',hex:'#2E86DE',en:'BLUE',zh:'藍色'},
+{id:'green',hex:'#2ED573',en:'GREEN',zh:'綠色'},
+{id:'yellow',hex:'#FFC312',en:'YELLOW',zh:'黃色'},
+{id:'purple',hex:'#A55EEA',en:'PURPLE',zh:'紫色'},
+{id:'orange',hex:'#FF6348',en:'ORANGE',zh:'橙色'}
+];
+const RB_C=['#FF4757','#FF9F43','#FFC312','#2ED573','#2E86DE','#5352ED','#A55EEA'];
+const ZOK={en:['Nice!','Right!','Yes!','Fast!','Wow!','Cool!','Go go!'],zh:['棒！','對了！','耶！','好快！','哇！','酷！','加油！']};
+const ZWIN={en:['Amazing!','So fast!','Hero!','Superstar!','Legend!'],zh:['太厲害！','超快！','英雄！','超級星！','傳說！']};
+const ZBAD={en:['Oops!','Try again!','Almost!','Next one!','Careful!'],zh:['哎呀！','再試！','差一點！','下一個！','小心！']};
+
+let lang='en',score=0,okC=0,badC=0,combo=0,bCombo=0;
+let lvl=1,streak=0,rule='word',rSwC=0,lvlC=0;
+let tLeft=30,tMax=30,tRef=null,active=false,busy=false;
+let curQ=null;
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+const tx=k=>(TX[lang]||TX.en)[k]||k;
+
+$('langBtn').addEventListener('click',e=>{e.stopPropagation();$('langDd').classList.toggle('show')});
+$('lEN').addEventListener('click',()=>setL('en'));
+$('lZH').addEventListener('click',()=>setL('zh'));
+document.addEventListener('click',e=>{if(!e.target.closest('#langBtn')&&!e.target.closest('#langDd'))$('langDd').classList.remove('show')});
+function setL(l){lang=l;$('langDd').classList.remove('show');$('lEN').classList.toggle('sel',l==='en');$('lZH').classList.toggle('sel',l==='zh');updTx()}
+function updTx(){
+$('txTitle').textContent=tx('title');$('txSub').textContent=tx('sub');
+$('btnStart').textContent=tx('start');$('txHint').textContent=tx('hint');
+$('txEnd').textContent=tx('end');$('btnAgain').textContent=tx('again');
+if(active&&curQ){renderRule();renderWord();renderBtns()}
+}
+function updSc(){$('scV').textContent=score;$('okV').textContent='✅ '+okC;$('nkV').textContent='❌ '+badC}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+function initTrail(){$('rbTrail').innerHTML=RB_C.map(c=>`<div class="rb-dot" style="--c:${c}"></div>`).join('')}
+function updTrail(){const ds=$('rbTrail').querySelectorAll('.rb-dot');ds.forEach((d,i)=>{if(i<streak){d.classList.add('lit');d.style.background=RB_C[i]}else{d.classList.remove('lit');d.style.background='rgba(255,255,255,.08)'}})}
+
+function renderRule(){
+const b=$('rBub');
+if(rule==='word')b.innerHTML=`${tx('rWord')} <span class="hi w-hi">${tx('rWordH')}</span>!`;
+else b.innerHTML=`${tx('rInk')} <span class="hi c-hi">${tx('rInkH')}</span>!`;
+}
+function renderWord(){
+if(!curQ)return;
+const w=$('sWord');w.textContent=COLORS[curQ.wI][lang];w.style.color=COLORS[curQ.iI].hex;
+w.classList.remove('pop');void w.offsetWidth;w.classList.add('pop');
+}
+function renderBtns(){
+if(!curQ)return;
+$('bGrid').innerHTML=curQ.opts.map(ci=>{const c=COLORS[ci];return`<button class="color-btn" data-ci="${ci}" style="background:${c.hex}">${c[lang]}</button>`}).join('');
+}
+
+$('btnStart').addEventListener('click',startG);
+$('btnAgain').addEventListener('click',startG);
+function startG(){
+score=0;okC=0;badC=0;combo=0;bCombo=0;
+lvl=1;streak=0;rule='word';rSwC=0;lvlC=0;
+tLeft=tMax;active=true;busy=false;
+updSc();showScr('scrG');initTrail();renderRule();newQ();startT();
+zSay(lang==='en'?"Let's go!":"開始囉！");
+}
+function startT(){
+clearInterval(tRef);const bar=$('tBar');
+tRef=setInterval(()=>{if(!active)return;tLeft-=.1;const p=Math.max(0,(tLeft/tMax)*100);bar.style.width=p+'%';bar.classList.toggle('low',p<20);if(tLeft<=0){tLeft=0;bar.style.width='0%';endG()}},100);
+}
+
+function nCol(){return Math.min(4+Math.floor((lvl-1)/2),6)}
+function newQ(){
+if(!active)return;
+const nc=nCol(),wI=Math.floor(Math.random()*nc);
+let iI;do{iI=Math.floor(Math.random()*nc)}while(iI===wI);
+const cI=rule==='word'?wI:iI,dI=rule==='word'?iI:wI;
+const os=new Set([cI,dI]),pool=[];
+for(let i=0;i<nc;i++)if(i!==cI&&i!==dI)pool.push(i);
+const sp=shuffle(pool);let idx=0;
+while(os.size<Math.min(4,nc)&&idx<sp.length)os.add(sp[idx++]);
+curQ={wI,iI,cI,opts:shuffle([...os])};
+renderWord();renderBtns();
+}
+
+$('bGrid').addEventListener('click',e=>{
+const btn=e.target.closest('.color-btn');
+if(!btn||busy||!active)return;
+const ci=parseInt(btn.dataset.ci);busy=true;
+
+if(ci===curQ.cI){
+okC++;combo++;if(combo>bCombo)bCombo=combo;rSwC++;lvlC++;
+const bonus=Math.min((combo-1)*5,25),pts=10+bonus;score+=pts;updSc();
+streak++;updTrail();
+btn.classList.add('c-ok');
+const r=btn.getBoundingClientRect();
+sparkFx(r.left+r.width/2,r.top+r.height/2);scPop(r.left+r.width/2,r.top,'+'+pts);
+if(combo>=3)showCmb();
+if(Math.random()<.35)zSay(pick(ZOK[lang]));
+
+if(streak>=7){
+streak=0;updTrail();score+=50;updSc();
+showNot('nRb',tx('rainbow')+' +50');confetti(18);zDance();
+}
+if(lvlC>=8&&lvl<5){
+lvl++;lvlC=0;
+showNot('nLvl',tx('lvl')+' Lv.'+lvl);zSay(pick(ZWIN[lang]));zDance();
+}
+if(rSwC>=5&&okC>=5){
+rSwC=0;rule=rule==='word'?'ink':'word';
+const u=$('uni');u.classList.remove('spin');void u.offsetWidth;u.classList.add('spin');
+renderRule();showNot('nRule',tx('newRule'));
+setTimeout(()=>{btn.classList.remove('c-ok');busy=false;if(active)newQ()},900);
+return;
+}
+setTimeout(()=>{btn.classList.remove('c-ok');busy=false;if(active)newQ()},250);
+}else{
+badC++;combo=0;streak=0;updSc();updTrail();
+tLeft=Math.max(0,tLeft-1.5);
+btn.classList.add('c-bad');
+const r=btn.getBoundingClientRect();
+splashFx(r.left+r.width/2,r.top+r.height/2,COLORS[curQ.cI].hex);
+flashScr('rgba(255,60,60,.18)');
+if(Math.random()<.5)zSay(pick(ZBAD[lang]));
+setTimeout(()=>{btn.classList.remove('c-bad');busy=false;if(active)newQ()},400);
+}
+});
+
+function endG(){
+active=false;clearInterval(tRef);
+const s=okC>=12?3:okC>=8?2:okC>=4?1:0;
+showScr('scrE');$('txEnd').textContent=tx('end');
+$('eStats').innerHTML=`<div>✅ ${tx('correct')}: <span class="v">${okC}</span></div><div>❌ ${tx('wrong')}: <span class="v">${badC}</span></div><div>🏆 ${tx('score')}: <span class="v">${score}</span></div><div>🔥 ${tx('best')}: <span class="v">${bCombo}x</span></div>`;
+$('starsR').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+confetti(22);zSay(pick(ZWIN[lang]));zDance();
+}
+
+function sparkFx(x,y){
+const em=['✨','⭐','💫','🌟'];
+for(let i=0;i<5;i++){const el=document.createElement('div');el.className='sparkle';el.textContent=pick(em);el.style.left=(x+(Math.random()-.5)*60)+'px';el.style.top=(y-5)+'px';el.style.animationDelay=i*.06+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),800)}
+}
+function splashFx(x,y,col){
+for(let i=0;i<3;i++){const el=document.createElement('div');el.className='splash';el.style.left=x+'px';el.style.top=y+'px';el.style.borderColor=col;el.style.animationDelay=i*.09+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),700)}
+}
+function scPop(x,y,t){const el=document.createElement('div');el.className='sc-pop';el.textContent=t;el.style.left=(x-25)+'px';el.style.top=(y-12)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),850)}
+function flashScr(c){const el=$('flashO');el.style.background=c;el.style.opacity='1';setTimeout(()=>el.style.opacity='0',120)}
+function confetti(n){
+const cols=['#ff6b6b','#ffa502','#ffd93d','#2ed573','#1e90ff','#a55eea','#ff9ff3','#ffd700'];
+for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top=(Math.random()*15-5)+'vh';const sz=6+Math.random()*8;c.style.width=sz+'px';c.style.height=sz+'px';c.style.background=pick(cols);c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.animationDelay=Math.random()*.4+'s';c.style.animationDuration=(1+Math.random()*.8)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2200)}
+}
+function showCmb(){const el=$('cmbB');el.textContent=`🔥 ${combo}x ${tx('combo')}!`;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
+const nTimers={};
+function showNot(id,t){const el=$(id);if(!el)return;el.textContent=t;el.classList.add('show');clearTimeout(nTimers[id]);nTimers[id]=setTimeout(()=>el.classList.remove('show'),1200)}
+
+let zTo;
+function zSay(t){const el=$('zBub');el.textContent=t;el.classList.add('show');clearTimeout(zTo);zTo=setTimeout(()=>el.classList.remove('show'),1600)}
+function zDance(){const el=$('zipp');el.classList.remove('dance');void el.offsetWidth;el.classList.add('dance');setTimeout(()=>el.classList.remove('dance'),600)}
+
+(function(){const c=$('bgC');for(let i=0;i<25;i++){const s=document.createElement('div');s.className='bg-star';const sz=2+Math.random()*4;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=Math.random()*100+'vw';s.style.top=Math.random()*100+'vh';s.style.setProperty('--d',(2+Math.random()*4)+'s');s.style.animationDelay=Math.random()*5+'s';c.appendChild(s)}})();
+
+setL('en');
+</script>
+</body>
+</html>

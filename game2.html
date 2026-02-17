@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Magic Brew Buddies - Wonder Heroes Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#1a0533 0%,#2d1b69 40%,#4a2c8a 70%,#1a0533 100%);display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
+
+.bg-particle{position:fixed;border-radius:50%;pointer-events:none;animation:pFloat linear infinite;z-index:0}
+@keyframes pFloat{0%{transform:translateY(100vh) rotate(0);opacity:0}10%{opacity:.3}90%{opacity:.3}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;z-index:100;flex-shrink:0;position:relative}
+.btn-icon{width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .15s,background .15s}
+.btn-icon:active{transform:scale(.9);background:rgba(255,255,255,.3)}
+.top-mid{text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:1px}
+.top-mid .sc{font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5)}
+.top-mid .sv{font-size:12px;opacity:.8;display:flex;align-items:center;gap:4px}
+.top-mid .sv b{color:#6bcb77;font-size:15px}
+
+.lang-dd{position:absolute;top:54px;left:12px;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:200;overflow:hidden;display:none}
+.lang-dd.show{display:block}
+.lang-dd button{padding:12px 20px;font-size:16px;cursor:pointer;border:none;background:#fff;width:100%;text-align:left;display:block;transition:background .15s}
+.lang-dd button:active{background:#f0e6ff}
+.lang-dd button.sel{background:#e8d5ff;font-weight:700}
+
+.screen{display:none;width:100%;flex:1;flex-direction:column;align-items:center;overflow:hidden;min-height:0}
+.screen.active{display:flex}
+
+.start-screen{justify-content:center;gap:18px;text-align:center;padding:20px}
+.g-title{font-size:30px;font-weight:900;color:#fff;line-height:1.3;text-shadow:0 3px 15px rgba(155,89,182,.8),0 0 40px rgba(155,89,182,.3)}
+.g-sub{color:rgba(255,255,255,.7);font-size:14px;margin-top:-6px}
+.big-icon{font-size:76px;animation:bFloat 3s ease-in-out infinite}
+@keyframes bFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+.start-btn{padding:16px 40px;font-size:21px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bcb77,#4ecdc4,#9b59b6);background-size:300% 300%;animation:rbShift 3s ease infinite;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);box-shadow:0 6px 25px rgba(155,89,182,.5);transition:transform .15s}
+@keyframes rbShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.start-btn:active{transform:scale(.95)}
+.hint{color:rgba(255,255,255,.45);font-size:12px;margin-top:4px}
+
+.game-container{flex:1;width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;padding:0 8px;min-height:0}
+.timer-wrap{width:100%;max-width:400px;height:12px;background:rgba(255,255,255,.12);border-radius:6px;margin:4px auto 6px;overflow:hidden;flex-shrink:0}
+.timer-fill{height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,#6bcb77,#ffd93d,#ff6b6b);transition:width .1s linear}
+.timer-fill.low{background:linear-gradient(90deg,#ff4444,#ff6b6b);animation:tPulse .5s ease infinite}
+@keyframes tPulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+.m-area{display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding:2px 0}
+.recipe-bub{background:#fff;border-radius:20px;padding:8px 16px;display:flex;gap:10px;align-items:center;box-shadow:0 4px 15px rgba(0,0,0,.2);margin-bottom:6px;position:relative;min-height:46px;animation:bPop .3s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bPop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.recipe-bub::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid #fff}
+.r-item{font-size:30px;transition:all .3s}
+.r-item.done{opacity:.18;transform:scale(.55)}
+.m-emoji{font-size:68px;line-height:1;filter:drop-shadow(0 5px 12px rgba(0,0,0,.3));animation:mIdle 2s ease-in-out infinite}
+@keyframes mIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.m-emoji.enter{animation:mEnter .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes mEnter{0%{transform:translateX(80px) scale(0) rotate(30deg);opacity:0}100%{transform:translateX(0) scale(1) rotate(0);opacity:1}}
+.m-emoji.happy{animation:mHappy .6s ease}
+@keyframes mHappy{0%{transform:scale(1) rotate(0)}20%{transform:scale(1.3) rotate(-10deg)}40%{transform:scale(1.2) rotate(10deg)}60%{transform:scale(1.25) rotate(-5deg)}80%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+.m-name{color:rgba(255,255,255,.55);font-size:12px;margin-top:1px}
+
+.c-area{display:flex;justify-content:center;align-items:center;flex:1;min-height:80px;position:relative}
+.cauldron{position:relative;display:flex;align-items:center;justify-content:center}
+.c-body{width:130px;height:82px;background:linear-gradient(180deg,#4a4a4a,#2a2a2a);border-radius:0 0 55px 55px;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.4),inset 0 -5px 15px rgba(0,0,0,.3)}
+.c-rim{position:absolute;top:-7px;left:-8px;right:-8px;height:14px;background:linear-gradient(180deg,#666,#444);border-radius:7px}
+.c-liq{position:absolute;bottom:8px;left:12px;right:12px;height:48px;border-radius:0 0 43px 43px;background:linear-gradient(180deg,#9b59b6,#8e44ad,#6c3483);animation:lWob 2s ease-in-out infinite;overflow:hidden;transition:background .5s}
+@keyframes lWob{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.06)}}
+.c-inside{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:2px;font-size:20px;z-index:2}
+.c-steam{position:absolute;top:-14px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.steam{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);animation:sRise 2s ease-in-out infinite}
+.steam:nth-child(2){animation-delay:.5s;width:10px;height:10px}
+.steam:nth-child(3){animation-delay:1s;width:6px;height:6px}
+@keyframes sRise{0%{transform:translateY(0) scale(1);opacity:.4}100%{transform:translateY(-22px) scale(2);opacity:0}}
+.cauldron.shake .c-body{animation:cShake .4s ease}
+@keyframes cShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.ing-area{width:100%;padding:6px 4px;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,8px)}
+.ing-lbl{color:rgba(255,255,255,.55);font-size:11px;text-align:center;margin-bottom:5px}
+.ing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto;width:100%}
+.ing-btn{height:76px;border-radius:16px;border:3px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .12s,background .12s,border-color .12s,opacity .3s;position:relative;-webkit-tap-highlight-color:transparent}
+.ing-btn .ie{font-size:34px;line-height:1;pointer-events:none}
+.ing-btn .il{font-size:10px;color:rgba(255,255,255,.7);pointer-events:none;line-height:1}
+.ing-btn:active:not(:disabled){transform:scale(.92);background:rgba(255,255,255,.25)}
+.ing-btn:disabled{opacity:.2;cursor:default}
+.ing-btn.ok{background:rgba(0,255,100,.35)!important;border-color:#00ff64!important;animation:okPop .4s ease}
+@keyframes okPop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.ing-btn.bad{background:rgba(255,60,60,.35)!important;border-color:#ff3c3c!important;animation:badShk .35s ease}
+@keyframes badShk{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
+
+.fly-i{position:fixed;font-size:26px;z-index:150;pointer-events:none;transition:all .4s cubic-bezier(.22,.61,.36,1)}
+.sc-pop{position:fixed;font-size:20px;font-weight:900;color:#ffd700;text-shadow:0 2px 6px rgba(0,0,0,.3);z-index:150;pointer-events:none;animation:scFly .9s ease-out forwards}
+@keyframes scFly{0%{transform:translateY(0) scale(.6);opacity:1}100%{transform:translateY(-50px) scale(1.1);opacity:0}}
+.burp-p{position:fixed;font-size:20px;z-index:150;pointer-events:none;animation:bUp .9s ease-out forwards}
+@keyframes bUp{0%{transform:translateY(0) scale(.5);opacity:1}100%{transform:translateY(-65px) scale(1.4);opacity:0}}
+.confetti{position:fixed;z-index:200;pointer-events:none;animation:cFall 1.4s ease-out forwards}
+@keyframes cFall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}100%{transform:translateY(60vh) rotate(720deg) scale(.3);opacity:0}}
+
+.combo-box{position:fixed;top:62px;left:50%;transform:translateX(-50%);color:#ffd700;font-size:20px;font-weight:900;text-shadow:0 2px 10px rgba(255,215,0,.6);z-index:80;opacity:0;transition:opacity .3s;pointer-events:none}
+.combo-box.show{opacity:1;animation:cbPop .4s ease}
+@keyframes cbPop{0%{transform:translateX(-50%) scale(.5)}50%{transform:translateX(-50%) scale(1.3)}100%{transform:translateX(-50%) scale(1)}}
+
+.lvl-box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#ffd700,#ff6b6b,#ff9ff3);color:#fff;padding:20px 35px;border-radius:20px;font-size:24px;font-weight:900;z-index:300;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.4);transition:transform .5s cubic-bezier(.175,.885,.32,1.275);pointer-events:none}
+.lvl-box.show{transform:translate(-50%,-50%) scale(1)}
+
+.zipp{position:fixed;bottom:10px;right:10px;font-size:34px;z-index:80;pointer-events:none}
+.zipp.dance{animation:zDance .6s ease}
+@keyframes zDance{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}75%{transform:rotate(-8deg) scale(1.15)}100%{transform:rotate(0) scale(1)}}
+.z-bub{position:fixed;bottom:48px;right:8px;background:#fff;border-radius:14px;padding:6px 12px;font-size:12px;font-weight:700;max-width:120px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:80;opacity:0;transition:opacity .3s;text-align:center;pointer-events:none}
+.z-bub.show{opacity:1}
+.z-bub::after{content:'';position:absolute;bottom:-8px;right:14px;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #fff}
+
+.end-screen{justify-content:center;gap:14px;text-align:center;padding:20px}
+.end-title{font-size:32px;font-weight:900;color:#ffd700;text-shadow:0 3px 15px rgba(255,215,0,.5)}
+.end-stats{color:#fff;font-size:17px;line-height:2.2}
+.end-stats .v{color:#ffd700;font-weight:700;font-size:24px}
+.stars-r{font-size:38px;letter-spacing:6px}
+.again-btn{padding:15px 38px;font-size:19px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#6bcb77,#4ecdc4);color:#fff;box-shadow:0 4px 15px rgba(78,205,196,.4);transition:transform .15s}
+.again-btn:active{transform:scale(.95)}
+
+@media(max-height:660px){.m-emoji{font-size:54px}.r-item{font-size:26px}.recipe-bub{padding:6px 12px;gap:8px}.ing-btn{height:66px}.ing-btn .ie{font-size:28px}.c-body{width:110px;height:68px;border-radius:0 0 45px 45px}.c-liq{height:40px;border-radius:0 0 35px 35px}.c-inside{font-size:17px}}
+@media(max-height:560px){.m-emoji{font-size:42px}.r-item{font-size:22px}.ing-btn{height:56px}.ing-btn .ie{font-size:24px}.c-body{width:90px;height:56px;border-radius:0 0 38px 38px}.c-liq{height:32px;border-radius:0 0 30px 30px}.c-inside{font-size:15px}.m-area{padding:0}.timer-wrap{margin:2px auto 4px}}
+@media(min-height:800px){.m-area{padding:10px 0}.ing-btn{height:88px}.ing-btn .ie{font-size:38px}}
+</style>
+</head>
+<body>
+
+<div id="bgP"></div>
+
+<div class="top-bar">
+    <button class="btn-icon" id="langBtn">🌐</button>
+    <div class="lang-dd" id="langDd">
+        <button class="sel" id="lEN">🇺🇸 English</button>
+        <button id="lZH">🇹🇼 繁體中文</button>
+    </div>
+    <div class="top-mid" id="topMid">
+        <div class="sc" id="scV">0</div>
+        <div class="sv">🍽️ <b id="svV">0</b></div>
+    </div>
+    <a href="index.html" class="btn-icon">🏠</a>
+</div>
+
+<div class="screen start-screen active" id="scrS">
+    <div class="big-icon">🧪</div>
+    <div class="g-title" id="txT">Magic Brew Buddies</div>
+    <div class="g-sub" id="txSub">Mix glowing potions for hungry monsters!</div>
+    <button class="start-btn" id="btnS">🧪 START BREWING! 🧪</button>
+    <div class="hint" id="txH">Tap the right ingredients to mix potions!</div>
+</div>
+
+<div class="screen" id="scrG">
+    <div class="game-container">
+        <div class="timer-wrap"><div class="timer-fill" id="tBar"></div></div>
+        <div class="m-area">
+            <div class="recipe-bub" id="rBub"></div>
+            <div class="m-emoji" id="mE">👾</div>
+            <div class="m-name" id="mN">Globby</div>
+        </div>
+        <div class="c-area">
+            <div class="cauldron" id="cdr">
+                <div class="c-body">
+                    <div class="c-rim"></div>
+                    <div class="c-liq" id="cLiq"></div>
+                    <div class="c-inside" id="cIn"></div>
+                </div>
+                <div class="c-steam"><div class="steam"></div><div class="steam"></div><div class="steam"></div></div>
+            </div>
+        </div>
+        <div class="ing-area">
+            <div class="ing-lbl" id="txIL">Tap the right ingredients!</div>
+            <div class="ing-grid" id="iGrid"></div>
+        </div>
+    </div>
+</div>
+
+<div class="screen end-screen" id="scrE">
+    <div style="font-size:60px">🎉</div>
+    <div class="end-title" id="txET">Time's Up!</div>
+    <div class="end-stats" id="eStats"></div>
+    <div class="stars-r" id="starsR"></div>
+    <button class="again-btn" id="btnA">🔄 Brew Again!</button>
+</div>
+
+<div class="zipp" id="zipp">🦊</div>
+<div class="z-bub" id="zBub"></div>
+<div class="lvl-box" id="lvlB"></div>
+<div class="combo-box" id="cmbB"></div>
+
+<script>
+const TX={
+en:{title:'Magic Brew Buddies',sub:'Mix glowing potions for hungry monsters!',start:'🧪 START BREWING! 🧪',hint:'Tap the right ingredients to mix potions!',tap:'Tap the right ingredients!',end:"Time's Up!",served:'Monsters Served',score:'Score',best:'Best Combo',again:'🔄 Brew Again!',lvl:'LEVEL UP!',combo:'COMBO'},
+zh:{title:'魔法調飲夥伴',sub:'為飢餓的怪獸調配魔法藥水！',start:'🧪 開始調配！🧪',hint:'點擊正確的材料來調配藥水！',tap:'點擊正確的材料！',end:'時間到！',served:'已服務怪獸',score:'分數',best:'最佳連擊',again:'🔄 再來一次！',lvl:'升級了！',combo:'連擊'}
+};
+const INGS=[
+{id:'candy',e:'🍬',en:'Candy',zh:'糖果'},{id:'star',e:'⭐',en:'Star',zh:'星星'},
+{id:'giggle',e:'😂',en:'Giggles',zh:'笑聲'},{id:'rainbow',e:'🌈',en:'Rainbow',zh:'彩虹'},
+{id:'lollipop',e:'🍭',en:'Lollipop',zh:'棒棒糖'},{id:'sparkle',e:'✨',en:'Sparkle',zh:'閃光'},
+{id:'bubble',e:'🫧',en:'Bubbles',zh:'泡泡'},{id:'crystal',e:'💎',en:'Crystal',zh:'水晶'},
+{id:'cherry',e:'🍒',en:'Cherry',zh:'櫻桃'},{id:'flower',e:'🌸',en:'Flower',zh:'花朵'},
+{id:'moon',e:'🌙',en:'Moon',zh:'月亮'},{id:'heart',e:'💖',en:'Heart',zh:'愛心'}
+];
+const MONS=[
+{e:'👾',en:'Globby',zh:'咕嚕'},{e:'👹',en:'Chomps',zh:'大嘴'},{e:'👻',en:'Booboo',zh:'波波'},
+{e:'🤖',en:'Buzzbot',zh:'嗡嗡'},{e:'🐸',en:'Ribbitz',zh:'呱呱'},{e:'🐲',en:'Sparky',zh:'閃閃'},
+{e:'🐙',en:'Squish',zh:'軟軟'},{e:'🧁',en:'Cuppie',zh:'杯杯'},{e:'🦖',en:'Chompy',zh:'嚼嚼'},
+{e:'🐱',en:'Whiskers',zh:'鬍鬍'}
+];
+const ZOK={en:['Yummy!','Nice pick!','More more!','Smells great!','Ooh shiny!','Good one!','Yes!'],zh:['好吃！','選得好！','再來！','好香！','亮晶晶！','不錯！','對了！']};
+const ZWIN={en:['BURRRP! 🌈','Delicious!','Best ever!','5 stars! ⭐','Amazing!','Wow!!','So tasty!'],zh:['打嗝！🌈','好好喝！','最棒了！','五顆星！⭐','超厲害！','哇！！','好可口！']};
+const ZBAD={en:['Not that one!','Oops!','Try another!','Nope!','Hmm...','Wrong one!'],zh:['不是那個！','哎呀！','試試別的！','不對喔！','嗯...','錯了！']};
+
+let lang='en';
+const tx=k=>(TX[lang]||TX.en)[k]||k;
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+const getI=id=>INGS.find(x=>x.id===id);
+
+let score=0,svd=0,lvl=1,cmb=0,bCmb=0,tLeft=60,tRef=null,active=false,serving=false;
+let curMon=null,recipe=[],collected=[],gridI=[];
+
+function updTx(){
+$('txT').textContent=tx('title');$('txSub').textContent=tx('sub');
+$('btnS').textContent=tx('start');$('txH').textContent=tx('hint');
+$('txIL').textContent=tx('tap');$('btnA').textContent=tx('again');
+if(curMon)$('mN').textContent=curMon[lang];
+if(active)renderGrid();
+}
+function updSc(){$('scV').textContent=score;$('svV').textContent=svd}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+$('langBtn').addEventListener('click',e=>{e.stopPropagation();$('langDd').classList.toggle('show')});
+$('lEN').addEventListener('click',()=>setL('en'));
+$('lZH').addEventListener('click',()=>setL('zh'));
+document.addEventListener('click',e=>{if(!e.target.closest('#langBtn')&&!e.target.closest('#langDd'))$('langDd').classList.remove('show')});
+function setL(l){lang=l;$('langDd').classList.remove('show');$('lEN').classList.toggle('sel',l==='en');$('lZH').classList.toggle('sel',l==='zh');updTx()}
+
+$('btnS').addEventListener('click',startG);
+$('btnA').addEventListener('click',startG);
+
+function startG(){
+score=0;svd=0;lvl=1;cmb=0;bCmb=0;tLeft=60;active=true;serving=false;
+updSc();showScr('scrG');spawn();startT();
+zippSay(lang==='en'?"Let's brew!":"開始調配！");
+}
+function startT(){
+clearInterval(tRef);const bar=$('tBar');
+tRef=setInterval(()=>{if(!active)return;tLeft-=.1;const p=Math.max(0,(tLeft/60)*100);bar.style.width=p+'%';bar.classList.toggle('low',p<20);if(tLeft<=0){tLeft=0;bar.style.width='0%';endG()}},100);
+}
+function endG(){
+active=false;clearInterval(tRef);
+let s=svd>=10?3:svd>=6?2:svd>=3?1:0;
+showScr('scrE');$('txET').textContent=tx('end');
+$('eStats').innerHTML=`<div>🍽️ ${tx('served')}: <span class="v">${svd}</span></div><div>🏆 ${tx('score')}: <span class="v">${score}</span></div><div>🔥 ${tx('best')}: <span class="v">${bCmb}x</span></div>`;
+$('starsR').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+confetti(25);zippSay(pick(ZWIN[lang]));zDance();
+}
+function rSz(){return lvl<=2?2:lvl<=4?3:Math.min(4,2+Math.floor(lvl/2))}
+
+function spawn(){
+if(!active)return;serving=false;
+curMon=pick(MONS);
+const rs=rSz(),sh=shuffle(INGS);
+recipe=sh.slice(0,rs).map(x=>x.id);collected=[];
+const ri=recipe.map(id=>getI(id)),oth=shuffle(INGS.filter(x=>!recipe.includes(x.id))),dis=oth.slice(0,6-rs);
+gridI=shuffle([...ri,...dis]);
+renderMon();renderRec();renderCdr();renderGrid();
+const el=$('mE');el.classList.remove('enter','happy');void el.offsetWidth;el.classList.add('enter');
+}
+function renderMon(){$('mE').textContent=curMon.e;$('mN').textContent=curMon[lang]}
+function renderRec(){$('rBub').innerHTML=recipe.map(id=>{const g=getI(id),d=collected.includes(id);return`<span class="r-item${d?' done':''}">${g.e}</span>`}).join('')}
+function renderCdr(){
+$('cIn').innerHTML=collected.map(id=>`<span>${getI(id).e}</span>`).join('');
+const cols=['linear-gradient(180deg,#9b59b6,#8e44ad,#6c3483)','linear-gradient(180deg,#e74c3c,#c0392b,#922b21)','linear-gradient(180deg,#f39c12,#e67e22,#d35400)','linear-gradient(180deg,#2ecc71,#27ae60,#1e8449)','linear-gradient(180deg,#3498db,#2980b9,#21618c)'];
+$('cLiq').style.background=cols[collected.length%cols.length];
+}
+function renderGrid(){
+const g=$('iGrid');
+g.innerHTML=gridI.map((ing,i)=>{const u=collected.includes(ing.id)&&recipe.includes(ing.id);return`<button class="ing-btn" data-i="${i}"${u?' disabled':''}><span class="ie">${ing.e}</span><span class="il">${ing[lang]}</span></button>`}).join('');
+}
+
+$('iGrid').addEventListener('click',e=>{
+const btn=e.target.closest('.ing-btn');
+if(!btn||btn.disabled||serving||!active)return;
+const idx=parseInt(btn.dataset.i),id=gridI[idx].id;
+if(collected.includes(id))return;
+if(recipe.includes(id)){
+collected.push(id);cmb++;if(cmb>bCmb)bCmb=cmb;
+btn.classList.add('ok');setTimeout(()=>{btn.classList.remove('ok');btn.disabled=true},350);
+const bonus=Math.min(cmb-1,5)*5,pts=10+bonus;score+=pts;updSc();
+scPop(btn,'+'+pts);
+if(cmb>=3)showCmb();
+if(Math.random()<.4)zippSay(pick(ZOK[lang]));
+flyI(btn,getI(id).e);renderRec();renderCdr();
+if(collected.length===recipe.length)serve();
+}else{
+cmb=0;btn.classList.add('bad');setTimeout(()=>btn.classList.remove('bad'),350);
+tLeft=Math.max(0,tLeft-1.5);zippSay(pick(ZBAD[lang]));
+$('cdr').classList.add('shake');setTimeout(()=>$('cdr').classList.remove('shake'),400);
+}
+});
+
+function serve(){
+serving=true;svd++;
+const bonus=50+lvl*10;score+=bonus;updSc();
+const mel=$('mE');mel.classList.remove('enter');mel.classList.add('happy');
+spawnBurp();scPop($('cdr'),'+'+bonus+' 🌈');confetti(12);
+zippSay(pick(ZWIN[lang]));zDance();
+if(svd%3===0){lvl++;showLvl()}
+setTimeout(()=>{mel.classList.remove('happy');if(active)spawn()},1100);
+}
+
+function flyI(btn,emoji){
+const br=btn.getBoundingClientRect(),cr=$('cdr').getBoundingClientRect();
+const el=document.createElement('div');el.className='fly-i';el.textContent=emoji;
+el.style.left=br.left+br.width/2-13+'px';el.style.top=br.top+br.height/2-13+'px';
+document.body.appendChild(el);
+requestAnimationFrame(()=>{el.style.left=cr.left+cr.width/2-13+'px';el.style.top=cr.top+20+'px';el.style.opacity='.3';el.style.transform='scale(.4)'});
+setTimeout(()=>el.remove(),500);
+}
+function scPop(el,txt){
+const r=el.getBoundingClientRect(),p=document.createElement('div');p.className='sc-pop';p.textContent=txt;
+p.style.left=r.left+r.width/2-28+'px';p.style.top=r.top-10+'px';
+document.body.appendChild(p);setTimeout(()=>p.remove(),900);
+}
+function showCmb(){
+const el=$('cmbB');el.textContent=`🔥 ${cmb}x ${tx('combo')}!`;
+el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+setTimeout(()=>el.classList.remove('show'),1500);
+}
+function showLvl(){
+const el=$('lvlB');el.textContent=`⬆️ ${tx('lvl')} Lv.${lvl}`;
+el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500);
+}
+function spawnBurp(){
+const mr=$('mE').getBoundingClientRect(),em=['🌈','✨','💫','⭐','🎉','💖','🫧'];
+for(let i=0;i<6;i++){const el=document.createElement('div');el.className='burp-p';el.textContent=pick(em);el.style.left=mr.left+mr.width/2+(Math.random()-.5)*50-10+'px';el.style.top=mr.top-10+'px';el.style.animationDelay=i*.08+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),1100)}
+}
+function confetti(n){
+const cols=['#ff6b6b','#ffd93d','#6bcb77','#4ecdc4','#9b59b6','#ff9ff3','#54a0ff','#ffd700'];
+for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top=(Math.random()*20-5)+'vh';c.style.width=(6+Math.random()*8)+'px';c.style.height=(6+Math.random()*8)+'px';c.style.background=pick(cols);c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.animationDelay=Math.random()*.4+'s';c.style.animationDuration=(1+Math.random()*.8)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2500)}
+}
+let zTo;
+function zippSay(t){const el=$('zBub');el.textContent=t;el.classList.add('show');clearTimeout(zTo);zTo=setTimeout(()=>el.classList.remove('show'),1800)}
+function zDance(){const el=$('zipp');el.classList.remove('dance');void el.offsetWidth;el.classList.add('dance');setTimeout(()=>el.classList.remove('dance'),600)}
+
+(function initBg(){
+const c=$('bgP'),cols=['rgba(155,89,182,.3)','rgba(52,152,219,.2)','rgba(231,76,60,.2)','rgba(46,204,113,.2)','rgba(241,196,15,.25)'];
+for(let i=0;i<12;i++){const p=document.createElement('div');p.className='bg-particle';const sz=4+Math.random()*8;p.style.width=sz+'px';p.style.height=sz+'px';p.style.left=Math.random()*100+'vw';p.style.background=pick(cols);p.style.animationDuration=(8+Math.random()*12)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p)}
+})();
+
+setL('en');updSc();
+</script>
+</body>
+</html>

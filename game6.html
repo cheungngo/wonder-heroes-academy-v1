@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Meteor Buddy Watch - Wonder Heroes Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#060620 0%,#0d1b40 35%,#1a1058 65%,#122040 100%);display:flex;flex-direction:column;height:100vh;height:100dvh;color:#fff;position:relative}
+
+.bg-star{position:fixed;border-radius:50%;background:#fff;pointer-events:none;z-index:0;animation:twk var(--d,3s) ease-in-out infinite alternate}
+@keyframes twk{0%{opacity:0.15;transform:scale(0.7)}100%{opacity:var(--mo,0.9);transform:scale(1.2)}}
+
+.moon{position:fixed;top:7%;right:10%;width:55px;height:55px;background:radial-gradient(circle at 35% 35%,#FFF8DC,#FFE4B5,#ddd);border-radius:50%;box-shadow:0 0 30px rgba(255,248,220,0.35),0 0 80px rgba(255,248,220,0.1);pointer-events:none;z-index:1}
+
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;z-index:100;position:relative;flex-shrink:0}
+.btn-icon{width:42px;height:42px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.07);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .15s,background .15s}
+.btn-icon:active{transform:scale(0.9);background:rgba(255,255,255,0.18)}
+.top-mid{text-align:center}
+.top-mid .sc{font-size:22px;font-weight:900;color:#FFD700;text-shadow:0 0 14px rgba(255,215,0,0.5)}
+.top-mid .lv{font-size:11px;color:rgba(255,255,255,0.5)}
+.lang-dd{position:absolute;top:54px;left:12px;background:#1a1a4e;border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.6);z-index:200;overflow:hidden;display:none}
+.lang-dd.show{display:block}
+.lang-dd button{padding:12px 20px;font-size:15px;cursor:pointer;border:none;background:transparent;color:#fff;width:100%;text-align:left}
+.lang-dd button:active{background:rgba(255,255,255,0.08)}
+.lang-dd button.sel{background:rgba(255,215,0,0.12);color:#FFD700;font-weight:700}
+
+.screen{display:none;width:100%;flex:1;flex-direction:column;align-items:center;overflow:hidden;min-height:0;z-index:10}
+.screen.active{display:flex}
+
+.start-screen{justify-content:center;gap:16px;text-align:center;padding:24px}
+.g-title{font-size:26px;font-weight:900;color:#FFD700;text-shadow:0 0 22px rgba(255,215,0,0.4);line-height:1.25}
+.g-sub{color:rgba(255,255,255,0.65);font-size:14px;max-width:300px;line-height:1.5}
+.big-icon{font-size:60px;animation:bobF 3s ease-in-out infinite}
+@keyframes bobF{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+.start-btn{padding:16px 36px;font-size:20px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#FFD700,#FF8C00,#FFD700);background-size:300% 300%;animation:shm 3s ease infinite;color:#1a1a2e;box-shadow:0 0 28px rgba(255,215,0,0.25);transition:transform .15s}
+@keyframes shm{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.start-btn:active{transform:scale(0.94)}
+.hint-tx{color:rgba(255,255,255,0.28);font-size:12px;margin-top:4px}
+
+.game-area{flex:1;width:100%;position:relative;overflow:hidden;min-height:0;z-index:10}
+.timer-wrap{position:absolute;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,0.06);z-index:30}
+.timer-bar{height:100%;background:linear-gradient(90deg,#6BCB77,#FFD93D,#FFD700);width:100%;border-radius:0 3px 3px 0;box-shadow:0 0 10px rgba(255,215,0,0.25);transition:width .25s linear}
+.game-hud{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:25;pointer-events:none}
+.hearts{font-size:18px;letter-spacing:2px}
+.drag-ct{font-size:14px;color:#FFD700;font-weight:700;text-shadow:0 0 10px rgba(255,215,0,0.4)}
+
+.fly-obj{position:absolute;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:15;border-radius:50%;will-change:left,top}
+.fly-obj.dragon{width:66px;height:66px;font-size:36px;background:radial-gradient(circle,rgba(255,215,0,0.18),transparent 65%);border:2px solid rgba(255,215,0,0.3);animation:dGlow 2s ease-in-out infinite alternate}
+@keyframes dGlow{0%{box-shadow:0 0 12px rgba(255,215,0,0.3),inset 0 0 8px rgba(255,215,0,0.1)}100%{box-shadow:0 0 24px rgba(255,215,0,0.6),inset 0 0 14px rgba(255,215,0,0.2)}}
+.fly-obj.meteor{width:46px;height:46px;font-size:24px;opacity:0.75}
+.fly-obj.tapped{pointer-events:none;transition:transform .3s,opacity .4s;transform:scale(1.4)!important;opacity:0!important}
+.fly-obj.missed{pointer-events:none;transition:opacity .3s;opacity:0!important}
+
+.save-pop{position:absolute;z-index:35;font-size:13px;font-weight:700;color:#FFD700;text-shadow:0 0 10px rgba(255,215,0,0.5);pointer-events:none;animation:sPop 1.3s ease-out forwards;white-space:nowrap;text-align:center}
+@keyframes sPop{0%{transform:translateY(0) scale(.6);opacity:1}60%{opacity:1}100%{transform:translateY(-55px) scale(1);opacity:0}}
+.sc-fly{position:absolute;z-index:35;font-size:19px;font-weight:900;color:#FFD700;text-shadow:0 0 10px rgba(255,215,0,0.6);pointer-events:none;animation:scF .85s ease-out forwards}
+@keyframes scF{0%{transform:translateY(0) scale(.4);opacity:1}100%{transform:translateY(-48px) scale(1.1);opacity:0}}
+.wrong-rip{position:absolute;z-index:25;width:50px;height:50px;border-radius:50%;border:2px solid rgba(180,180,255,0.4);pointer-events:none;animation:rip .55s ease-out forwards}
+@keyframes rip{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+.sparkle{position:absolute;z-index:40;font-size:14px;pointer-events:none;animation:spkU .7s ease-out forwards}
+@keyframes spkU{0%{transform:translateY(0) scale(.3) rotate(0);opacity:1}100%{transform:translateY(-45px) scale(1) rotate(200deg);opacity:0}}
+.confetti{position:fixed;z-index:200;pointer-events:none;animation:cFall 1.5s ease-out forwards}
+@keyframes cFall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}100%{transform:translateY(55vh) rotate(720deg) scale(.08);opacity:0}}
+
+.combo-box{position:fixed;top:56px;left:50%;transform:translateX(-50%);color:#FFD700;font-size:17px;font-weight:900;text-shadow:0 0 14px rgba(255,215,0,0.6);z-index:80;opacity:0;transition:opacity .3s;pointer-events:none}
+.combo-box.show{opacity:1;animation:cbPop .35s ease}
+@keyframes cbPop{0%{transform:translateX(-50%) scale(.5)}50%{transform:translateX(-50%) scale(1.25)}100%{transform:translateX(-50%) scale(1)}}
+
+.round-msg{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%) scale(0);padding:14px 30px;border-radius:20px;font-size:20px;font-weight:900;z-index:300;text-align:center;box-shadow:0 0 35px rgba(0,0,0,0.4);pointer-events:none;white-space:nowrap;transition:transform .4s cubic-bezier(.175,.885,.32,1.275)}
+.round-msg.show{transform:translate(-50%,-50%) scale(1)}
+.msg-good{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a1a2e}
+.msg-miss{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.msg-lvl{background:linear-gradient(135deg,#6BCB77,#2E86DE);color:#fff}
+
+.zipp{position:fixed;bottom:10px;right:10px;font-size:28px;z-index:80;pointer-events:none}
+.zipp.dance{animation:zD .6s ease}
+@keyframes zD{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}75%{transform:rotate(-8deg) scale(1.15)}100%{transform:rotate(0) scale(1)}}
+.z-bub{position:fixed;bottom:44px;right:8px;background:rgba(255,255,255,0.92);color:#333;border-radius:12px;padding:5px 12px;font-size:12px;font-weight:700;max-width:120px;text-align:center;box-shadow:0 3px 14px rgba(0,0,0,0.4);z-index:80;opacity:0;transition:opacity .3s;pointer-events:none}
+.z-bub.show{opacity:1}
+.z-bub::after{content:'';position:absolute;bottom:-7px;right:14px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid rgba(255,255,255,0.92)}
+
+.end-screen{justify-content:center;gap:12px;text-align:center;padding:20px}
+.end-title{font-size:26px;font-weight:900;color:#FFD700;text-shadow:0 0 24px rgba(255,215,0,0.5)}
+.end-stats{color:rgba(255,255,255,0.8);font-size:15px;line-height:2.2}
+.end-stats .v{color:#FFD700;font-weight:700;font-size:20px}
+.stars-row{font-size:32px;letter-spacing:5px}
+.dragon-garden{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:10px 14px;max-width:320px;width:100%}
+.garden-title{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px}
+.garden-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.garden-d{width:38px;height:38px;background:radial-gradient(circle,rgba(255,215,0,0.12),rgba(100,200,100,0.06));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;animation:gPop .4s ease backwards}
+@keyframes gPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
+.again-btn{padding:14px 34px;font-size:18px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#FFD700,#FF8C00);color:#1a1a2e;box-shadow:0 0 22px rgba(255,215,0,0.25);transition:transform .15s}
+.again-btn:active{transform:scale(0.94)}
+
+@media(max-height:640px){.big-icon{font-size:48px}.g-title{font-size:22px}.fly-obj.dragon{width:58px;height:58px;font-size:30px}.fly-obj.meteor{width:40px;height:40px;font-size:20px}.garden-d{width:32px;height:32px;font-size:16px}}
+@media(max-height:530px){.fly-obj.dragon{width:50px;height:50px;font-size:26px}.fly-obj.meteor{width:36px;height:36px;font-size:18px}}
+@media(min-height:800px){.fly-obj.dragon{width:72px;height:72px;font-size:40px}.fly-obj.meteor{width:52px;height:52px;font-size:28px}}
+</style>
+</head>
+<body>
+
+<div class="moon"></div>
+
+<div class="top-bar">
+  <button class="btn-icon" id="langBtn">🌐</button>
+  <div class="lang-dd" id="langDd">
+    <button class="sel" id="lEN">🇺🇸 English</button>
+    <button id="lZH">🇹🇼 繁體中文</button>
+  </div>
+  <div class="top-mid">
+    <div class="sc" id="scV">0</div>
+    <div class="lv" id="lvV">Level 1</div>
+  </div>
+  <a href="index.html" class="btn-icon">🏠</a>
+</div>
+
+<div class="screen start-screen active" id="scrS">
+  <div class="big-icon">🐲✨</div>
+  <div class="g-title" id="txTitle">Meteor Buddy Watch</div>
+  <div class="g-sub" id="txSub">Tap the baby star dragons before they zoom away! They need your help to get home safely.</div>
+  <button class="start-btn" id="btnStart">🌟 Start Watching! 🐲</button>
+  <div class="hint-tx" id="txHint">Tap dragons 🐲 but not meteors ☄️</div>
+</div>
+
+<div class="screen" id="scrG">
+  <div class="game-area" id="gameArea">
+    <div class="timer-wrap"><div class="timer-bar" id="timerBar"></div></div>
+    <div class="game-hud">
+      <div class="hearts" id="hearts">❤️❤️❤️</div>
+      <div class="drag-ct" id="dragCt">🐲 0</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen end-screen" id="scrE">
+  <div style="font-size:50px">🐲🌟</div>
+  <div class="end-title" id="txEndT">Stargazing Complete!</div>
+  <div class="end-stats" id="eStats"></div>
+  <div class="stars-row" id="starsRow"></div>
+  <div class="dragon-garden" id="dGarden">
+    <div class="garden-title" id="txGarden">Your Academy Garden</div>
+    <div class="garden-grid" id="gGrid"></div>
+  </div>
+  <button class="again-btn" id="btnAgain">🌟 Watch Again!</button>
+</div>
+
+<div class="zipp" id="zipp">🦊</div>
+<div class="z-bub" id="zBub"></div>
+<div class="combo-box" id="cmbB"></div>
+<div class="round-msg msg-good" id="mGood"></div>
+<div class="round-msg msg-miss" id="mMiss"></div>
+<div class="round-msg msg-lvl" id="mLvl"></div>
+
+<script>
+const TX={
+en:{title:'Meteor Buddy Watch',sub:'Tap the baby star dragons before they zoom away! They need your help to get home safely.',start:'🌟 Start Watching! 🐲',hint:'Tap dragons 🐲 but not meteors ☄️',level:'Level',saved:'Dragons Saved',score:'Score',best:'Best Streak',missed:'Flew Away',endT:'Stargazing Complete!',again:'🌟 Watch Again!',garden:'Your Academy Garden',combo:'COMBO',nice:['Saved! ⭐','Thank you! 💕','Home safe! 🏠','Yay! ✨','Sparkly! 💫'],oops:['Whoops!','That\'s a meteor!','Not that one!'],zG:['Nice catch!','Great eye!','Star hero!','Amazing!','So gentle!','You\'re kind!'],zM:['Almost!','Keep watching!','Next one!','You got this!'],ty:['Thank you! 💕','I\'m home! ⭐','You saved me!','So warm! ✨','Yay! 🏠']},
+zh:{title:'流星夥伴守望',sub:'在小星龍飛走之前點擊牠們！牠們需要你的幫助安全回家。',start:'🌟 開始守望！🐲',hint:'點擊星龍 🐲 不要點流星 ☄️',level:'等級',saved:'拯救星龍',score:'分數',best:'最佳連擊',missed:'飛走了',endT:'觀星完成！',again:'🌟 再次守望！',garden:'你的學院花園',combo:'連擊',nice:['救到了！⭐','謝謝你！💕','安全回家！🏠','耶！✨','閃亮亮！💫'],oops:['哎呀！','那是流星！','不是那個！'],zG:['接得好！','好眼力！','星星英雄！','太棒了！','好溫柔！','你好善良！'],zM:['差一點！','繼續看！','下一個！','你可以的！'],ty:['謝謝你！💕','我回家了！⭐','你救了我！','好溫暖！✨','耶！🏠']}
+};
+
+const DRAGON_EM=['🐲','🐉'];
+const METEOR_EM=['☄️','💫','⭐','✨'];
+
+let lang='en',score=0,lives=3,level=1;
+let saved=0,missed=0,combo=0,bestStreak=0;
+let phase='idle',gameTime=0,totalTime=60;
+let objects=[],spawnAcc=0,spawnInt=2200;
+let lastT=0,animId=null,savedList=[];
+let areaW=0,areaH=0;
+
+const $=id=>document.getElementById(id);
+const tx=k=>(TX[lang]||TX.en)[k]||k;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const rand=(a,b)=>Math.random()*(b-a)+a;
+
+/* Lang */
+$('langBtn').onclick=e=>{e.stopPropagation();$('langDd').classList.toggle('show')};
+$('lEN').onclick=()=>setL('en');
+$('lZH').onclick=()=>setL('zh');
+document.addEventListener('click',e=>{if(!e.target.closest('#langBtn')&&!e.target.closest('#langDd'))$('langDd').classList.remove('show')});
+function setL(l){lang=l;$('langDd').classList.remove('show');$('lEN').classList.toggle('sel',l==='en');$('lZH').classList.toggle('sel',l==='zh');updTx()}
+function updTx(){
+$('txTitle').textContent=tx('title');$('txSub').textContent=tx('sub');
+$('btnStart').textContent=tx('start');$('txHint').textContent=tx('hint');
+$('lvV').textContent=tx('level')+' '+level;$('txEndT').textContent=tx('endT');
+$('btnAgain').textContent=tx('again');$('txGarden').textContent=tx('garden');
+}
+function updSc(){$('scV').textContent=score;$('lvV').textContent=tx('level')+' '+level}
+function updH(){$('hearts').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(Math.max(0,3-lives))}
+function updDC(){$('dragCt').textContent='🐲 '+saved}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+/* Background stars */
+function makeBgStars(){
+document.querySelectorAll('.bg-star').forEach(s=>s.remove());
+for(let i=0;i<55;i++){
+const s=document.createElement('div');s.className='bg-star';
+const sz=Math.random()<.15?3:Math.random()<.4?2:1.5;
+s.style.width=sz+'px';s.style.height=sz+'px';
+s.style.left=Math.random()*100+'%';s.style.top=Math.random()*85+'%';
+s.style.setProperty('--d',(2+Math.random()*4).toFixed(1)+'s');
+s.style.setProperty('--mo',(0.4+Math.random()*0.6).toFixed(2));
+s.style.animationDelay=(-Math.random()*5).toFixed(1)+'s';
+if(Math.random()<.15)s.style.background='#FFD700';
+document.body.appendChild(s);
+}}
+makeBgStars();
+
+/* Measure area */
+function measure(){const r=$('gameArea');areaW=r.offsetWidth;areaH=r.offsetHeight}
+
+/* Spawn */
+function spawnObj(){
+measure();
+const progress=gameTime/totalTime;
+const dragonChance=Math.max(.38,.7-.32*progress);
+const isDragon=Math.random()<dragonChance;
+const el=document.createElement('div');
+el.className='fly-obj '+(isDragon?'dragon':'meteor');
+el.textContent=isDragon?pick(DRAGON_EM):pick(METEOR_EM);
+const baseSpeed=isDragon?rand(55,95):rand(130,230+level*15);
+const speedMul=1+progress*.35;
+const spd=baseSpeed*speedMul;
+let x,y,vx,vy;
+const edge=Math.random();
+const objSz=isDragon?66:46;
+if(edge<.55){x=areaW+10;y=rand(areaH*.05,areaH*.55);vx=-spd;vy=rand(-spd*.15,spd*.35)}
+else if(edge<.85){x=rand(areaW*.25,areaW*.9);y=-10;vx=rand(-spd*.4,-spd*.15);vy=spd*.85}
+else{x=areaW+10;y=-10;vx=-spd*.72;vy=spd*.72}
+el.style.left=x+'px';el.style.top=y+'px';
+const obj={type:isDragon?'dragon':'meteor',el,x,y,vx,vy,alive:true,tapped:false,bobPhase:Math.random()*6.28,age:0};
+el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();tapObj(obj)},{passive:false});
+$('gameArea').appendChild(el);
+objects.push(obj);
+}
+
+/* Tap handler */
+function tapObj(obj){
+if(!obj.alive||obj.tapped||phase!=='playing')return;
+obj.tapped=true;
+if(obj.type==='dragon'){
+combo++;if(combo>bestStreak)bestStreak=combo;saved++;
+const pts=10+level*5+Math.min(combo*3,30);score+=pts;
+updSc();updDC();
+obj.el.classList.add('tapped');
+showSavePop(obj);
+showScPop(obj,'+'+pts);
+sparkAt(obj.x+33,obj.y+33,5);
+if(combo>=3)showCombo();
+if(Math.random()<.45)zSay(pick(tx('zG')));
+else zDance();
+savedList.push(pick(DRAGON_EM));
+if(saved%8===0&&level<10){level++;updSc();showMsg('mLvl','⬆️ '+tx('level')+' '+level+'!')}
+}else{
+lives--;combo=0;updH();
+obj.el.classList.add('tapped');
+showWrongRip(obj);
+if(Math.random()<.5)zSay(pick(tx('zM')));
+if(lives<=0){setTimeout(()=>endGame(),400);return}
+}
+setTimeout(()=>{if(obj.el.parentNode)obj.el.remove();obj.alive=false},400);
+}
+
+/* Game loop */
+function gameLoop(ts){
+if(phase!=='playing'){return}
+const dt=Math.min((ts-lastT)/1000,.05);lastT=ts;
+gameTime+=dt;
+$('timerBar').style.width=Math.max(0,(1-gameTime/totalTime)*100)+'%';
+if(gameTime>=totalTime){endGame();return}
+const progress=gameTime/totalTime;
+spawnInt=Math.max(700,2200-progress*1500-level*60);
+spawnAcc+=dt*1000;
+if(spawnAcc>=spawnInt){spawnAcc=0;const onScreen=objects.filter(o=>o.alive&&!o.tapped).length;if(onScreen<(3+Math.floor(level/3)))spawnObj()}
+for(let i=objects.length-1;i>=0;i--){
+const o=objects[i];
+if(!o.alive)continue;
+o.age+=dt;
+o.x+=o.vx*dt;o.y+=o.vy*dt;
+let drawY=o.y;
+if(o.type==='dragon'&&!o.tapped){o.bobPhase+=dt*2.8;drawY+=Math.sin(o.bobPhase)*6}
+o.el.style.left=o.x+'px';o.el.style.top=drawY+'px';
+const gone=o.x<-80||o.x>areaW+80||o.y<-80||o.y>areaH+80;
+if(gone&&!o.tapped){
+if(o.type==='dragon'){missed++;o.el.classList.add('missed')}
+o.alive=false;setTimeout(()=>{if(o.el.parentNode)o.el.remove()},350);
+objects.splice(i,1);
+}}
+animId=requestAnimationFrame(gameLoop);
+}
+
+/* Start */
+function startGame(){
+score=0;lives=3;level=1;saved=0;missed=0;combo=0;bestStreak=0;
+gameTime=0;spawnAcc=0;spawnInt=2200;savedList=[];phase='playing';
+objects.forEach(o=>{if(o.el.parentNode)o.el.remove()});objects=[];
+updSc();updH();updDC();$('timerBar').style.width='100%';
+showScr('scrG');measure();
+zSay(lang==='en'?"Look up! 🌙":"抬頭看！🌙");
+lastT=performance.now();animId=requestAnimationFrame(gameLoop);
+}
+
+/* End */
+function endGame(){
+phase='idle';cancelAnimationFrame(animId);
+objects.forEach(o=>{if(o.el.parentNode)o.el.remove()});objects=[];
+const stars=saved>=18?3:saved>=10?2:saved>=4?1:0;
+showScr('scrE');
+$('eStats').innerHTML=`<div>🏆 ${tx('score')}: <span class="v">${score}</span></div><div>🐲 ${tx('saved')}: <span class="v">${saved}</span></div><div>💨 ${tx('missed')}: <span class="v">${missed}</span></div><div>🔥 ${tx('best')}: <span class="v">${bestStreak}</span></div>`;
+$('starsRow').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+const gg=$('gGrid');gg.innerHTML='';
+savedList.slice(-20).forEach((em,i)=>{const d=document.createElement('div');d.className='garden-d';d.textContent=em;d.style.animationDelay=(i*.07)+'s';gg.appendChild(d)});
+$('dGarden').style.display=savedList.length?'block':'none';
+confetti(16);zDance();
+}
+
+/* Effects */
+function showSavePop(obj){
+const p=document.createElement('div');p.className='save-pop';
+p.textContent=pick(tx('ty'));p.style.left=(obj.x)+'px';p.style.top=(obj.y-10)+'px';
+$('gameArea').appendChild(p);setTimeout(()=>p.remove(),1400);
+}
+function showScPop(obj,t){
+const p=document.createElement('div');p.className='sc-fly';
+p.textContent=t;p.style.left=(obj.x+10)+'px';p.style.top=(obj.y+40)+'px';
+$('gameArea').appendChild(p);setTimeout(()=>p.remove(),900);
+}
+function showWrongRip(obj){
+const r=document.createElement('div');r.className='wrong-rip';
+r.style.left=(obj.x+23)+'px';r.style.top=(obj.y+23)+'px';
+$('gameArea').appendChild(r);setTimeout(()=>r.remove(),600);
+const p=document.createElement('div');p.className='save-pop';p.style.color='rgba(180,180,255,0.8)';
+p.textContent=pick(tx('oops'));p.style.left=obj.x+'px';p.style.top=(obj.y-10)+'px';
+$('gameArea').appendChild(p);setTimeout(()=>p.remove(),1200);
+}
+function sparkAt(cx,cy,n){
+const em=['✨','⭐','💫','🌟'];
+for(let i=0;i<n;i++){const s=document.createElement('div');s.className='sparkle';s.textContent=pick(em);s.style.left=(cx+rand(-25,25))+'px';s.style.top=(cy+rand(-15,15))+'px';s.style.animationDelay=(i*.06)+'s';$('gameArea').appendChild(s);setTimeout(()=>s.remove(),800)}
+}
+function confetti(n){
+const cols=['#FFD700','#FF8C00','#ff6b6b','#6BCB77','#74b9ff','#a55eea','#ff9ff3'];
+for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top=(Math.random()*10-5)+'vh';const sz=5+Math.random()*8;c.style.width=sz+'px';c.style.height=sz+'px';c.style.background=pick(cols);c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.animationDelay=(Math.random()*.5)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2200)}
+}
+function showCombo(){const e=$('cmbB');e.textContent='🔥 '+combo+'x '+tx('combo')+'!';e.classList.remove('show');void e.offsetWidth;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1400)}
+const msgTmr={};
+function showMsg(id,t){const e=$(id);e.textContent=t;e.classList.add('show');clearTimeout(msgTmr[id]);msgTmr[id]=setTimeout(()=>e.classList.remove('show'),1200)}
+let zTo;function zSay(t){$('zBub').textContent=t;$('zBub').classList.add('show');clearTimeout(zTo);zTo=setTimeout(()=>$('zBub').classList.remove('show'),1800)}
+function zDance(){$('zipp').classList.remove('dance');void $('zipp').offsetWidth;$('zipp').classList.add('dance')}
+
+/* Buttons */
+$('btnStart').onclick=startGame;
+$('btnAgain').onclick=startGame;
+
+/* Resize */
+window.addEventListener('resize',()=>{if(phase==='playing')measure()});
+
+setL('en');
+</script>
+</body>
+</html>

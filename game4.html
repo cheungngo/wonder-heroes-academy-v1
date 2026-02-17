@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Glowy Memory Gems - Wonder Heroes Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#0a0025 0%,#1a0a3e 40%,#2d1b69 100%);display:flex;flex-direction:column;height:100vh;height:100dvh;position:relative}
+
+.bg-star{position:fixed;border-radius:50%;background:#fff;pointer-events:none;opacity:0;animation:twk var(--d,3s) ease-in-out infinite}
+@keyframes twk{0%,100%{opacity:.1;transform:scale(.7)}50%{opacity:.7;transform:scale(1.2)}}
+.firefly{position:fixed;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle,#ffd700,#ffa500);box-shadow:0 0 8px #ffd700,0 0 16px rgba(255,165,0,.4);pointer-events:none;opacity:0;animation:ffF var(--d,7s) ease-in-out infinite}
+@keyframes ffF{0%{opacity:0;transform:translate(0,0)}15%{opacity:.85}50%{opacity:.25;transform:translate(var(--dx,30px),var(--dy,-40px))}85%{opacity:.75}100%{opacity:0;transform:translate(var(--dx2,-20px),var(--dy2,30px))}}
+
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;z-index:100;flex-shrink:0;position:relative}
+.btn-icon{width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .15s,background .15s}
+.btn-icon:active{transform:scale(.9);background:rgba(255,255,255,.25)}
+.top-mid{text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:1px}
+.top-mid .sc{font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5)}
+.top-mid .lv{font-size:11px;opacity:.7}
+.lang-dd{position:absolute;top:54px;left:12px;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:200;overflow:hidden;display:none}
+.lang-dd.show{display:block}
+.lang-dd button{padding:12px 20px;font-size:16px;cursor:pointer;border:none;background:#fff;width:100%;text-align:left;display:block;transition:background .15s}
+.lang-dd button:active{background:#f0e6ff}
+.lang-dd button.sel{background:#e8d5ff;font-weight:700}
+
+.screen{display:none;width:100%;flex:1;flex-direction:column;align-items:center;overflow:hidden;min-height:0}
+.screen.active{display:flex}
+
+.start-screen{justify-content:center;gap:16px;text-align:center;padding:20px}
+.g-title{font-size:28px;font-weight:900;color:#fff;line-height:1.3;text-shadow:0 3px 15px rgba(165,94,234,.8),0 0 40px rgba(165,94,234,.3)}
+.g-sub{color:rgba(255,255,255,.6);font-size:14px;max-width:300px}
+.big-icon{font-size:72px;animation:gemBob 3s ease-in-out infinite}
+@keyframes gemBob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-14px) rotate(5deg)}}
+.start-btn{padding:16px 36px;font-size:20px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#a55eea,#74b9ff,#2ed573);background-size:300% 300%;animation:gShift 4s ease infinite;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);box-shadow:0 6px 25px rgba(165,94,234,.5);transition:transform .15s}
+@keyframes gShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.start-btn:active{transform:scale(.95)}
+.hint{color:rgba(255,255,255,.35);font-size:12px}
+
+.game-wrap{flex:1;width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;padding:0 10px;min-height:0}
+.status-row{width:100%;display:flex;justify-content:space-between;align-items:center;padding:4px 4px;flex-shrink:0;color:#fff}
+.hearts{font-size:22px;letter-spacing:2px}
+.crown-area{display:flex;align-items:center;gap:1px;font-size:15px;flex-wrap:wrap;max-width:150px;justify-content:flex-end}
+
+.phase-banner{font-size:18px;font-weight:800;color:#fff;text-align:center;padding:8px 18px;border-radius:16px;margin:4px 0;flex-shrink:0;min-height:42px;display:flex;align-items:center;justify-content:center}
+.phase-banner.watch{background:linear-gradient(135deg,rgba(165,94,234,.5),rgba(116,185,255,.5));animation:pBan .5s cubic-bezier(.175,.885,.32,1.275)}
+.phase-banner.tap{background:linear-gradient(135deg,rgba(46,213,115,.5),rgba(255,195,18,.5));animation:pBan .5s cubic-bezier(.175,.885,.32,1.275)}
+.phase-banner.wait{background:rgba(255,255,255,.1)}
+@keyframes pBan{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+
+.grid-area{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%}
+.gem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:85vw;max-width:320px}
+.gem-cell{aspect-ratio:1;border-radius:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;border:3px solid rgba(255,255,255,.12);overflow:hidden;transition:transform .2s cubic-bezier(.175,.885,.32,1.275),box-shadow .3s,opacity .3s,border-color .3s}
+.gem-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.22) 0%,transparent 100%);border-radius:17px 17px 0 0;pointer-events:none}
+.gem-cell.idle{opacity:.45;transform:scale(.92)}
+.gem-cell.ready{opacity:.82;transform:scale(1)}
+.gem-cell.ready:active{transform:scale(.93)}
+.gem-cell.lit{opacity:1!important;transform:scale(1.1)!important;border-color:rgba(255,255,255,.7)!important;box-shadow:0 0 20px var(--gw),0 0 45px var(--gw),0 0 70px var(--gw)!important;z-index:5}
+.gem-cell.correct{opacity:1!important;border-color:#fff!important;box-shadow:0 0 25px rgba(255,255,255,.7)!important;animation:gOk .35s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes gOk{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.gem-cell.wrong{animation:gBad .4s ease}
+@keyframes gBad{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.gem-cell.reveal{opacity:1!important;border-color:#ffd700!important;box-shadow:0 0 15px rgba(255,215,0,.5),0 0 35px rgba(255,215,0,.3)!important;animation:gRev .6s ease infinite}
+@keyframes gRev{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+.prog-wrap{flex-shrink:0;padding:6px 0 4px;min-height:26px;display:flex;align-items:center;justify-content:center}
+.prog-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.prog-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);transition:all .3s cubic-bezier(.175,.885,.32,1.275)}
+.prog-dot.done{background:#2ed573;border-color:#2ed573;box-shadow:0 0 8px rgba(46,213,115,.5);transform:scale(1.1)}
+.prog-dot.cur{background:#ffd700;border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.5);animation:dotP .6s ease infinite}
+@keyframes dotP{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+
+.sparkle{position:fixed;font-size:18px;z-index:150;pointer-events:none;animation:spUp .7s ease-out forwards}
+@keyframes spUp{0%{transform:translateY(0) scale(.3) rotate(0);opacity:1}100%{transform:translateY(-60px) scale(1.2) rotate(180deg);opacity:0}}
+.confetti{position:fixed;z-index:200;pointer-events:none;animation:cFall 1.4s ease-out forwards}
+@keyframes cFall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}100%{transform:translateY(60vh) rotate(720deg) scale(.15);opacity:0}}
+.sc-pop{position:fixed;font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 2px 8px rgba(0,0,0,.4);z-index:150;pointer-events:none;animation:scFly .85s ease-out forwards}
+@keyframes scFly{0%{transform:translateY(0) scale(.5);opacity:1}100%{transform:translateY(-55px) scale(1.1);opacity:0}}
+.ff-pop{position:fixed;border-radius:50%;pointer-events:none;z-index:100;background:#ffd700;box-shadow:0 0 6px #ffd700,0 0 12px rgba(255,165,0,.5);animation:ffPop .55s ease-out forwards}
+@keyframes ffPop{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--tx,0),var(--ty,-30px)) scale(0);opacity:0}}
+.flash-ov{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .12s}
+
+.round-msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);color:#fff;padding:16px 30px;border-radius:20px;font-size:22px;font-weight:900;z-index:300;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;transition:transform .4s cubic-bezier(.175,.885,.32,1.275)}
+.round-msg.show{transform:translate(-50%,-50%) scale(1)}
+.msg-good{background:linear-gradient(135deg,#ffd700,#ff6b81,#a55eea)}
+.msg-oops{background:linear-gradient(135deg,#ff6348,#ff4757)}
+.msg-lvl{background:linear-gradient(135deg,#a55eea,#74b9ff,#2ed573)}
+
+.zipp{position:fixed;bottom:10px;right:10px;font-size:32px;z-index:80;pointer-events:none}
+.zipp.dance{animation:zD .6s ease}
+@keyframes zD{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}75%{transform:rotate(-8deg) scale(1.15)}100%{transform:rotate(0) scale(1)}}
+.z-bub{position:fixed;bottom:46px;right:8px;background:#fff;border-radius:14px;padding:5px 11px;font-size:11px;font-weight:700;max-width:120px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:80;opacity:0;transition:opacity .3s;text-align:center;pointer-events:none}
+.z-bub.show{opacity:1}
+.z-bub::after{content:'';position:absolute;bottom:-7px;right:12px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #fff}
+.combo-box{position:fixed;top:56px;left:50%;transform:translateX(-50%);color:#ffd700;font-size:20px;font-weight:900;text-shadow:0 2px 10px rgba(255,215,0,.6);z-index:80;opacity:0;transition:opacity .3s;pointer-events:none}
+.combo-box.show{opacity:1;animation:cbP .35s ease}
+@keyframes cbP{0%{transform:translateX(-50%) scale(.5)}50%{transform:translateX(-50%) scale(1.25)}100%{transform:translateX(-50%) scale(1)}}
+
+.end-screen{justify-content:center;gap:14px;text-align:center;padding:20px}
+.end-title{font-size:30px;font-weight:900;color:#ffd700;text-shadow:0 3px 15px rgba(255,215,0,.5)}
+.end-stats{color:#fff;font-size:16px;line-height:2.2}
+.end-stats .v{color:#ffd700;font-weight:700;font-size:22px}
+.stars-r{font-size:36px;letter-spacing:6px}
+.again-btn{padding:14px 36px;font-size:18px;font-weight:700;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(135deg,#a55eea,#74b9ff);color:#fff;box-shadow:0 4px 15px rgba(165,94,234,.4);transition:transform .15s}
+.again-btn:active{transform:scale(.95)}
+
+@media(max-height:640px){.gem-grid{gap:8px;max-width:270px}.gem-cell{border-radius:16px;font-size:24px}.phase-banner{font-size:15px;padding:5px 12px;min-height:34px;margin:2px 0}.status-row{padding:2px 4px}.hearts{font-size:18px}.prog-wrap{padding:3px 0;min-height:22px}.prog-dot{width:11px;height:11px}}
+@media(max-height:530px){.gem-grid{gap:6px;max-width:230px}.gem-cell{border-radius:14px;font-size:20px}.phase-banner{font-size:13px;padding:4px 10px;min-height:28px}}
+@media(min-height:800px){.gem-grid{gap:14px;max-width:350px}.gem-cell{border-radius:24px;font-size:36px}.phase-banner{font-size:22px;padding:10px 22px}}
+</style>
+</head>
+<body>
+<div id="bgC"></div>
+
+<div class="top-bar">
+  <button class="btn-icon" id="langBtn">🌐</button>
+  <div class="lang-dd" id="langDd">
+    <button class="sel" id="lEN">🇺🇸 English</button>
+    <button id="lZH">🇹🇼 繁體中文</button>
+  </div>
+  <div class="top-mid">
+    <div class="sc" id="scV">0</div>
+    <div class="lv" id="lvV">Level 1</div>
+  </div>
+  <a href="index.html" class="btn-icon">🏠</a>
+</div>
+
+<div class="screen start-screen active" id="scrS">
+  <div class="big-icon">💎</div>
+  <div class="g-title" id="txTitle">Glowy Memory Gems</div>
+  <div class="g-sub" id="txSub">Watch the gems glow, then tap them in the same order! Collect jewels for your crown!</div>
+  <button class="start-btn" id="btnStart" data-tx="start">💎 START! 💎</button>
+  <div class="hint" id="txHint">Start with 3 gems — can you remember them all?</div>
+</div>
+
+<div class="screen" id="scrG">
+  <div class="game-wrap">
+    <div class="status-row">
+      <div class="hearts" id="hearts">❤️❤️❤️</div>
+      <div class="crown-area" id="crown">👑</div>
+    </div>
+    <div class="phase-banner wait" id="pBan">...</div>
+    <div class="grid-area">
+      <div class="gem-grid" id="gGrid"></div>
+    </div>
+    <div class="prog-wrap"><div class="prog-dots" id="pDots"></div></div>
+  </div>
+</div>
+
+<div class="screen end-screen" id="scrE">
+  <div style="font-size:56px">👑</div>
+  <div class="end-title" id="txEnd">Amazing!</div>
+  <div class="end-stats" id="eStats"></div>
+  <div class="stars-r" id="starsR"></div>
+  <button class="again-btn" id="btnAgain" data-tx="again">💎 Play Again!</button>
+</div>
+
+<div class="zipp" id="zipp">🦊</div>
+<div class="z-bub" id="zBub"></div>
+<div class="combo-box" id="cmbB"></div>
+<div class="round-msg msg-good" id="mGood"></div>
+<div class="round-msg msg-oops" id="mOops"></div>
+<div class="round-msg msg-lvl" id="mLvl"></div>
+<div class="flash-ov" id="flashO"></div>
+
+<script>
+const TX={
+en:{title:'Glowy Memory Gems',sub:'Watch the gems glow, then tap them in the same order! Collect jewels for your crown!',start:'💎 START! 💎',hint:'Start with 3 gems — can you remember them all?',watch:'✨ Watch the gems! ✨',turn:'👆 Your turn!',ready:'Get ready…',perfect:'🎉 Perfect!',oops:'💫 Almost!',lvlup:'⬆️ Level Up!',endT:'Amazing!',score:'Score',level:'Level',rounds:'Perfect Rounds',best:'Longest Sequence',again:'💎 Play Again!',combo:'COMBO',seq:'gems'},
+zh:{title:'閃光記憶寶石',sub:'看寶石發光的順序，然後按相同順序點擊！收集寶石裝飾你的皇冠！',start:'💎 開始！💎',hint:'從3顆寶石開始 — 你能記住嗎？',watch:'✨ 看寶石發光！✨',turn:'👆 輪到你了！',ready:'準備好…',perfect:'🎉 完美！',oops:'💫 差一點！',lvlup:'⬆️ 升級了！',endT:'太棒了！',score:'分數',level:'等級',rounds:'完美回合',best:'最長序列',again:'💎 再玩一次！',combo:'連擊',seq:'顆'}
+};
+const GEMS=[
+{hex:'#FF4757',lt:'#ff7979',gw:'rgba(255,71,87,0.55)',em:'❤️'},
+{hex:'#2E86DE',lt:'#54a0ff',gw:'rgba(46,134,222,0.55)',em:'💙'},
+{hex:'#2ED573',lt:'#7bed9f',gw:'rgba(46,213,115,0.55)',em:'💚'},
+{hex:'#FFC312',lt:'#ffd93d',gw:'rgba(255,195,18,0.55)',em:'⭐'},
+{hex:'#A55EEA',lt:'#c56cf0',gw:'rgba(165,94,234,0.55)',em:'💜'},
+{hex:'#74B9FF',lt:'#a3d8ff',gw:'rgba(116,185,255,0.55)',em:'💎'},
+{hex:'#FF9F43',lt:'#ffbe76',gw:'rgba(255,159,67,0.55)',em:'🧡'},
+{hex:'#FF6B81',lt:'#ff8a9e',gw:'rgba(255,107,129,0.55)',em:'💗'},
+{hex:'#00D2D3',lt:'#55efc4',gw:'rgba(0,210,211,0.55)',em:'💠'}
+];
+const ZOK={en:['Nice!','Yes!','Right!','Wow!','Great!','Cool!','Smart!'],zh:['棒！','對了！','耶！','哇！','很好！','酷！','聰明！']};
+const ZWIN={en:['Amazing!','Hero!','Superstar!','Genius!','Legend!'],zh:['太厲害！','英雄！','超級星！','天才！','傳說！']};
+const ZBAD={en:['Almost!','Try again!','So close!','Next time!','You got this!'],zh:['差一點！','再試試！','好接近！','下次！','你可以的！']};
+
+let lang='en',score=0,lives=3,level=1,seqLen=3;
+let seq=[],pIdx=0,phase='idle',perfects=0,bestSeq=0,combo=0;
+let crownG=[],showTmr=null;
+const $=id=>document.getElementById(id);
+const tx=k=>(TX[lang]||TX.en)[k]||k;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+/* --- Lang --- */
+$('langBtn').onclick=e=>{e.stopPropagation();$('langDd').classList.toggle('show')};
+$('lEN').onclick=()=>setL('en');$('lZH').onclick=()=>setL('zh');
+document.addEventListener('click',e=>{if(!e.target.closest('#langBtn')&&!e.target.closest('#langDd'))$('langDd').classList.remove('show')});
+function setL(l){lang=l;$('langDd').classList.remove('show');$('lEN').classList.toggle('sel',l==='en');$('lZH').classList.toggle('sel',l==='zh');updTx()}
+function updTx(){
+$('txTitle').textContent=tx('title');$('txSub').textContent=tx('sub');
+$('btnStart').textContent=tx('start');$('txHint').textContent=tx('hint');
+$('txEnd').textContent=tx('endT');$('btnAgain').textContent=tx('again');
+$('lvV').textContent=tx('level')+' '+level;
+if(phase==='show')$('pBan').textContent=tx('watch');
+else if(phase==='input')$('pBan').textContent=tx('turn')+' ('+pIdx+'/'+seq.length+')';
+}
+function updSc(){$('scV').textContent=score;$('lvV').textContent=tx('level')+' '+level}
+function updH(){$('hearts').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(Math.max(0,3-lives))}
+function updCr(){$('crown').innerHTML='👑'+crownG.map(i=>GEMS[i].em).join('')}
+function updDots(){
+const c=$('pDots');c.innerHTML='';
+for(let i=0;i<seq.length;i++){const d=document.createElement('div');d.className='prog-dot';if(i<pIdx)d.classList.add('done');else if(i===pIdx&&phase==='input')d.classList.add('cur');c.appendChild(d)}
+}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+/* --- Grid --- */
+function buildGrid(){
+const g=$('gGrid');g.innerHTML='';
+for(let i=0;i<9;i++){const gm=GEMS[i],c=document.createElement('div');
+c.className='gem-cell idle';c.dataset.idx=i;
+c.style.background='linear-gradient(145deg,'+gm.lt+','+gm.hex+')';
+c.style.setProperty('--gw',gm.gw);
+c.textContent=gm.em;
+c.style.animation='gIn .4s '+(.05*i)+'s cubic-bezier(.175,.885,.32,1.275) backwards';
+g.appendChild(c)}
+}
+function gemState(st){$('gGrid').querySelectorAll('.gem-cell').forEach(c=>{c.classList.remove('idle','ready','lit','correct','wrong','reveal');c.classList.add(st)})}
+function getCells(){return $('gGrid').querySelectorAll('.gem-cell')}
+
+/* --- Game --- */
+$('btnStart').onclick=startG;$('btnAgain').onclick=startG;
+function startG(){
+score=0;lives=3;level=1;seqLen=3;perfects=0;bestSeq=0;combo=0;crownG=[];phase='idle';
+updSc();updH();updCr();showScr('scrG');buildGrid();
+$('pDots').innerHTML='';
+$('pBan').textContent=tx('ready');$('pBan').className='phase-banner wait';
+zSay(lang==='en'?"Let's go!":"開始囉！");
+setTimeout(()=>startRound(),900);
+}
+function startRound(){
+seq=[];
+for(let i=0;i<seqLen;i++){let p;do{p=Math.floor(Math.random()*9)}while(seq.length>0&&seq[seq.length-1]===p);seq.push(p)}
+pIdx=0;phase='show';gemState('idle');
+$('pBan').textContent=tx('watch');$('pBan').className='phase-banner watch';
+updDots();setTimeout(()=>showSeq(),500);
+}
+function showDelay(){return seqLen<=5?650:seqLen<=7?550:480}
+function showSeq(){
+let i=0;const cells=getCells();
+function next(){
+if(i>0)cells[seq[i-1]].classList.remove('lit');
+if(i<seq.length){cells[seq[i]].classList.add('lit');ffBurst(cells[seq[i]]);i++;showTmr=setTimeout(next,showDelay())}
+else{showTmr=setTimeout(()=>{if(phase!=='show')return;phase='input';pIdx=0;gemState('ready');$('pBan').textContent=tx('turn')+' (0/'+seq.length+')';$('pBan').className='phase-banner tap';updDots()},400)}
+}next();
+}
+
+/* --- Tap --- */
+$('gGrid').addEventListener('pointerdown',e=>{
+const cell=e.target.closest('.gem-cell');if(!cell)return;e.preventDefault();
+handleTap(parseInt(cell.dataset.idx))
+});
+function handleTap(idx){
+if(phase!=='input')return;
+const cells=getCells(),cell=cells[idx];
+if(idx===seq[pIdx]){
+pIdx++;const bonus=10+Math.min(combo*3,24);score+=bonus;updSc();
+cell.classList.remove('ready');cell.classList.add('correct');
+sparkFx(cell);scPop(cell,'+'+bonus);
+setTimeout(()=>{cell.classList.remove('correct');cell.classList.add('ready')},350);
+$('pBan').textContent=tx('turn')+' ('+pIdx+'/'+seq.length+')';updDots();
+if(Math.random()<.3)zSay(pick(ZOK[lang]));
+if(pIdx>=seq.length){
+phase='paused';perfects++;combo++;
+if(seqLen>bestSeq)bestSeq=seqLen;
+crownG.push(pick([0,1,2,3,4,5,6,7,8]));updCr();
+const rb=seqLen*15;score+=rb;updSc();
+confetti(16);zDance();
+showMsg('mGood',tx('perfect')+' +'+rb);
+if(combo>=3)showCombo();
+if(perfects%3===0&&level<10){level++;updSc();setTimeout(()=>{showMsg('mLvl',tx('lvlup')+' Lv.'+level);zSay(pick(ZWIN[lang]))},1100)}
+seqLen=Math.min(seqLen+1,9);
+setTimeout(()=>{if(lives>0)startRound()},1800);
+}
+}else{
+phase='paused';lives--;combo=0;updH();
+cell.classList.remove('ready');cell.classList.add('wrong');
+flashScr('rgba(255,60,60,.22)');
+const cc=cells[seq[pIdx]];setTimeout(()=>cc.classList.add('reveal'),300);
+zSay(pick(ZBAD[lang]));showMsg('mOops',tx('oops'));
+if(seqLen>3)seqLen--;
+setTimeout(()=>{cell.classList.remove('wrong');cc.classList.remove('reveal');
+if(lives<=0)endG();else startRound()},2000);
+}
+}
+function endG(){
+phase='idle';clearTimeout(showTmr);
+const s=perfects>=8?3:perfects>=4?2:perfects>=1?1:0;
+showScr('scrE');$('txEnd').textContent=tx('endT');
+$('eStats').innerHTML='<div>🏆 '+tx('score')+': <span class="v">'+score+'</span></div><div>📊 '+tx('level')+': <span class="v">'+level+'</span></div><div>✅ '+tx('rounds')+': <span class="v">'+perfects+'</span></div><div>🔗 '+tx('best')+': <span class="v">'+bestSeq+' '+tx('seq')+'</span></div>';
+$('starsR').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+confetti(24);zDance();zSay(pick(ZWIN[lang]));
+}
+
+/* --- FX --- */
+function sparkFx(el){
+const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,em=['✨','⭐','💫','🌟','💎'];
+for(let i=0;i<5;i++){const s=document.createElement('div');s.className='sparkle';s.textContent=pick(em);s.style.left=(cx+(Math.random()-.5)*50)+'px';s.style.top=cy+'px';s.style.animationDelay=i*.06+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),800)}
+}
+function ffBurst(el){
+const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+for(let i=0;i<5;i++){const f=document.createElement('div');f.className='ff-pop';const sz=3+Math.random()*4;f.style.width=sz+'px';f.style.height=sz+'px';f.style.left=(cx+(Math.random()-.5)*30)+'px';f.style.top=(cy+(Math.random()-.5)*30)+'px';f.style.setProperty('--tx',(Math.random()-.5)*40+'px');f.style.setProperty('--ty',(-15-Math.random()*30)+'px');f.style.animationDelay=i*.04+'s';document.body.appendChild(f);setTimeout(()=>f.remove(),650)}
+}
+function confetti(n){
+const cols=['#ff6b6b','#ffa502','#ffd93d','#2ed573','#1e90ff','#a55eea','#ff9ff3','#ffd700'];
+for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top=(Math.random()*12-4)+'vh';const sz=5+Math.random()*8;c.style.width=sz+'px';c.style.height=sz+'px';c.style.background=pick(cols);c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.animationDelay=Math.random()*.45+'s';c.style.animationDuration=(1+Math.random()*.8)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2300)}
+}
+function flashScr(c){const e=$('flashO');e.style.background=c;e.style.opacity='1';setTimeout(()=>e.style.opacity='0',140)}
+function scPop(el,t){const r=el.getBoundingClientRect(),p=document.createElement('div');p.className='sc-pop';p.textContent=t;p.style.left=(r.left+r.width/2-20)+'px';p.style.top=r.top+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),900)}
+const mTmr={};
+function showMsg(id,t){const e=$(id);e.textContent=t;e.classList.add('show');clearTimeout(mTmr[id]);mTmr[id]=setTimeout(()=>e.classList.remove('show'),1200)}
+function showCombo(){const e=$('cmbB');e.textContent='🔥 '+combo+'x '+tx('combo')+'!';e.classList.remove('show');void e.offsetWidth;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1400)}
+let zTo;function zSay(t){const e=$('zBub');e.textContent=t;e.classList.add('show');clearTimeout(zTo);zTo=setTimeout(()=>e.classList.remove('show'),1600)}
+function zDance(){const e=$('zipp');e.classList.remove('dance');void e.offsetWidth;e.classList.add('dance')}
+
+/* --- BG --- */
+(function(){
+const b=document.getElementById('bgC');
+for(let i=0;i<22;i++){const s=document.createElement('div');s.className='bg-star';const sz=2+Math.random()*3;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=Math.random()*100+'vw';s.style.top=Math.random()*100+'vh';s.style.setProperty('--d',(2+Math.random()*4)+'s');s.style.animationDelay=Math.random()*5+'s';document.body.appendChild(s)}
+for(let i=0;i<10;i++){const f=document.createElement('div');f.className='firefly';f.style.left=Math.random()*100+'vw';f.style.top=(25+Math.random()*55)+'vh';f.style.setProperty('--d',(5+Math.random()*6)+'s');f.style.setProperty('--dx',(Math.random()*80-40)+'px');f.style.setProperty('--dy',(Math.random()*80-40)+'px');f.style.setProperty('--dx2',(Math.random()*80-40)+'px');f.style.setProperty('--dy2',(Math.random()*80-40)+'px');f.style.animationDelay=Math.random()*6+'s';document.body.appendChild(f)}
+})();
+
+/* --- Gem entrance keyframe injected --- */
+(function(){const s=document.createElement('style');s.textContent='@keyframes gIn{0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(.92) rotate(0);opacity:.45}}';document.head.appendChild(s)})();
+
+setL('en');
+</script>
+</body>
+</html>

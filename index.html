@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Wonder Heroes Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow-x:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#0a0a2e 0%,#1a1050 20%,#2d1b69 45%,#4a2c8a 70%,#6b3fa0 100%);color:#fff;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;position:relative;overflow-y:auto}
+
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite alternate}
+@keyframes twinkle{0%{opacity:.1;transform:scale(.6)}100%{opacity:var(--o,.8);transform:scale(1)}}
+
+.floater{position:fixed;z-index:1;pointer-events:none;animation:floatUp var(--d,8s) linear infinite;font-size:var(--sz,16px);opacity:.35}
+@keyframes floatUp{0%{transform:translateY(100vh) translateX(0) rotate(0);opacity:0}10%{opacity:.35}90%{opacity:.35}100%{transform:translateY(-10vh) translateX(var(--dx,20px)) rotate(360deg);opacity:0}}
+
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;z-index:100;position:relative;flex-shrink:0}
+.btn-icon{width:44px;height:44px;border-radius:13px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-decoration:none}
+.btn-icon:active{transform:scale(.88);background:rgba(255,255,255,.12)}
+.lang-dd{position:absolute;top:56px;left:14px;background:rgba(30,10,60,.97);border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.7);z-index:200;overflow:hidden;display:none;backdrop-filter:blur(10px)}
+.lang-dd.show{display:block}
+.lang-dd button{padding:13px 22px;font-size:15px;cursor:pointer;border:none;background:transparent;color:#fff;width:100%;text-align:left;transition:background .15s}
+.lang-dd button:active{background:rgba(255,255,255,.08)}
+.lang-dd button.sel{background:rgba(255,215,0,.12);color:#ffd700;font-weight:700}
+
+.main{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;padding:0 16px 10px;z-index:10;flex:1}
+
+.glow-orb{position:fixed;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(160,100,255,.18),transparent 65%);pointer-events:none;z-index:0;animation:orbPulse 4s ease-in-out infinite}
+@keyframes orbPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:.6}50%{transform:translateX(-50%) scale(1.15);opacity:1}}
+
+.mascot-area{display:flex;flex-direction:column;align-items:center;margin:4px 0 6px;position:relative}
+.mascot{font-size:56px;animation:mascotBounce 2s ease-in-out infinite;filter:drop-shadow(0 4px 15px rgba(255,160,0,.3))}
+@keyframes mascotBounce{0%,100%{transform:translateY(0) rotate(-3deg)}25%{transform:translateY(-10px) rotate(3deg)}50%{transform:translateY(-2px) rotate(-2deg)}75%{transform:translateY(-8px) rotate(4deg)}}
+.mascot-bubble{background:rgba(255,255,255,.92);color:#333;padding:7px 14px;border-radius:14px;font-size:12px;font-weight:700;text-align:center;max-width:200px;box-shadow:0 4px 16px rgba(0,0,0,.4);position:relative;margin-top:4px;animation:bubPop .5s ease backwards .3s}
+.mascot-bubble::before{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:8px solid rgba(255,255,255,.92)}
+@keyframes bubPop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+.title-area{text-align:center;margin:8px 0}
+.academy-title{font-size:26px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#ff6b6b,#ffd700,#48dbfb,#a55eea,#ff6b6b);background-size:400% 400%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gr 5s ease infinite;filter:drop-shadow(0 2px 8px rgba(255,200,0,.2))}
+@keyframes gr{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.academy-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:.5px}
+
+.games-label{font-size:11px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin:14px 0 8px;align-self:flex-start}
+.games-grid{width:100%;display:flex;flex-direction:column;gap:10px}
+
+.game-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.07);cursor:pointer;transition:transform .15s,background .2s,box-shadow .2s;text-decoration:none;color:#fff;position:relative;overflow:hidden}
+.game-card:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+.game-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gc1,rgba(255,100,100,.06)),var(--gc2,rgba(100,150,255,.06)));pointer-events:none}
+.game-card::after{content:'';position:absolute;top:0;right:0;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.015));pointer-events:none}
+
+.gc-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);position:relative;z-index:1}
+.gc-info{flex:1;min-width:0;z-index:1}
+.gc-num{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.gc-name{font-size:16px;font-weight:800;margin:1px 0;line-height:1.2}
+.gc-desc{font-size:11px;color:rgba(255,255,255,.45);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gc-arrow{font-size:18px;color:rgba(255,255,255,.15);flex-shrink:0;z-index:1;transition:transform .2s}
+.game-card:active .gc-arrow{transform:translateX(3px);color:rgba(255,255,255,.3)}
+
+.bottom-deco{width:100%;text-align:center;padding:14px 0 6px;z-index:10}
+.bottom-deco .garden{font-size:20px;letter-spacing:2px;filter:drop-shadow(0 2px 6px rgba(100,255,100,.15))}
+.bottom-deco .bl{font-size:10px;color:rgba(255,255,255,.2);margin-top:4px}
+
+.powered-banner{width:100%;text-align:center;padding:14px 16px 18px;z-index:10;flex-shrink:0}
+.powered-inner{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:50px;padding:8px 20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.powered-inner .pw-icon{font-size:16px}
+.powered-inner .pw-text{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.5px;font-weight:600}
+.powered-inner .pw-name{color:rgba(255,255,255,.7);font-weight:800}
+
+.sparkle-deco{position:fixed;pointer-events:none;z-index:2;font-size:14px;opacity:0;animation:spA var(--d,3s) ease-in-out infinite}
+@keyframes spA{0%,100%{opacity:0;transform:scale(.5) rotate(0)}50%{opacity:.5;transform:scale(1) rotate(180deg)}}
+
+@media(max-height:600px){.mascot{font-size:40px}.academy-title{font-size:22px}.gc-icon{width:42px;height:42px;font-size:22px;border-radius:11px}.game-card{padding:11px 13px;gap:11px}.gc-name{font-size:14px}}
+@media(min-width:500px){.main{padding:0 24px 10px}.game-card{padding:16px 20px}.academy-title{font-size:30px}}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="glow-orb"></div>
+
+<div class="top-bar">
+  <button class="btn-icon" id="langBtn">🌐</button>
+  <div class="lang-dd" id="langDd">
+    <button class="sel" id="lEN">🇺🇸 English</button>
+    <button id="lZH">🇹🇼 繁體中文</button>
+  </div>
+  <div style="width:44px"></div>
+</div>
+
+<div class="main">
+  <div class="mascot-area">
+    <div class="mascot">🦊</div>
+    <div class="mascot-bubble" id="mascotBub">Let's train today, hero!</div>
+  </div>
+
+  <div class="title-area">
+    <div class="academy-title" id="mainTitle">Wonder Heroes Academy</div>
+    <div class="academy-sub" id="mainSub">Train your Spark Powers!</div>
+  </div>
+
+  <div class="games-label" id="gLabel">⚡ Daily Missions</div>
+
+  <div class="games-grid" id="gamesGrid"></div>
+
+  <div class="bottom-deco">
+    <div class="garden">🌱🌸🌿🌻🌷🌼🌱</div>
+    <div class="bl" id="gardenTx">Your Crystal Garden is growing!</div>
+  </div>
+</div>
+
+<div class="powered-banner">
+  <div class="powered-inner">
+    <span class="pw-icon">⚕️</span>
+    <span class="pw-text" id="pwText">Powered by <span class="pw-name">Cheung Ngo Medical</span></span>
+  </div>
+</div>
+
+<script>
+const TX = {
+  en: {
+    bubble: "Let's train today, hero!",
+    title: 'Wonder Heroes Academy',
+    sub: 'Train your Spark Powers!',
+    label: '⚡ Daily Missions',
+    garden: 'Your Crystal Garden is growing!',
+    powered: 'Powered by <span class="pw-name">Cheung Ngo Medical</span>',
+    games: [
+      { num: 'Mission 2', name: 'Magic Brew Buddies', desc: 'Mix glowing potions for hungry monster customers!', icon: '🧪', file: 'game2.html' },
+      { num: 'Mission 3', name: 'Rainbow Rule Race', desc: 'Tap the right rule before the rainbow timer runs out!', icon: '🌈', file: 'game3.html' },
+      { num: 'Mission 4', name: 'Glowy Memory Gems', desc: 'Remember and tap the glowing pattern on a treasure grid!', icon: '💎', file: 'game4.html' },
+      { num: 'Mission 5', name: 'Dino Train Rescue', desc: 'Swipe switches so cute dinosaurs reach the right stations!', icon: '🦕', file: 'game5.html' },
+      { num: 'Mission 6', name: 'Meteor Buddy Watch', desc: 'Tap the special shooting stars before they zoom away!', icon: '🌟', file: 'game6.html' },
+      { num: 'Mission 7', name: 'Ocean Treasure Hunt', desc: 'Find all the glowing fish hiding in the busy reef!', icon: '🐠', file: 'game7.html' },
+      { num: 'Mission 8', name: 'Echo Echo Party', desc: 'Tap when the dancing animal matches 2 steps ago!', icon: '🎉', file: 'game8.html' }
+    ]
+  },
+  zh: {
+    bubble: '今天一起訓練吧，英雄！',
+    title: '奇蹟英雄學院',
+    sub: '訓練你的火花超能力！',
+    label: '⚡ 每日任務',
+    garden: '你的水晶花園正在成長！',
+    powered: '由 <span class="pw-name">翱翔醫療</span> 提供技術支持',
+    games: [
+      { num: '任務 2', name: '魔法釀造夥伴', desc: '為飢餓的怪物顧客調配發光藥水！', icon: '🧪', file: 'game2.html' },
+      { num: '任務 3', name: '彩虹規則競賽', desc: '在彩虹計時器結束前點擊正確規則！', icon: '🌈', file: 'game3.html' },
+      { num: '任務 4', name: '發光記憶寶石', desc: '記住並點擊寶物格上的發光圖案！', icon: '💎', file: 'game4.html' },
+      { num: '任務 5', name: '恐龍火車救援', desc: '滑動開關讓可愛恐龍到達正確車站！', icon: '🦕', file: 'game5.html' },
+      { num: '任務 6', name: '流星夥伴守望', desc: '在特別的流星飛走之前點擊它們！', icon: '🌟', file: 'game6.html' },
+      { num: '任務 7', name: '海洋尋寶大冒險', desc: '找到所有藏在熱鬧珊瑚礁中的發光魚！', icon: '🐠', file: 'game7.html' },
+      { num: '任務 8', name: '回音回音派對', desc: '當跳舞動物跟兩步前一樣時點擊配對！', icon: '🎉', file: 'game8.html' }
+    ]
+  }
+};
+
+const CARD_COLORS = [
+  ['rgba(255,100,150,.08)', 'rgba(255,180,100,.06)'],
+  ['rgba(255,100,100,.08)', 'rgba(255,200,50,.06)'],
+  ['rgba(100,150,255,.08)', 'rgba(180,100,255,.06)'],
+  ['rgba(80,200,180,.08)', 'rgba(100,150,255,.06)'],
+  ['rgba(255,180,50,.08)', 'rgba(255,100,100,.06)'],
+  ['rgba(50,200,255,.08)', 'rgba(50,255,200,.06)'],
+  ['rgba(180,100,255,.08)', 'rgba(255,100,180,.06)']
+];
+
+let lang = 'en';
+const $ = id => document.getElementById(id);
+
+function makeStars() {
+  const c = $('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 60 + '%';
+    const sz = 1 + Math.random() * 2.5;
+    s.style.width = sz + 'px';
+    s.style.height = sz + 'px';
+    s.style.setProperty('--d', (2 + Math.random() * 4).toFixed(1) + 's');
+    s.style.setProperty('--o', (.3 + Math.random() * .7).toFixed(2));
+    s.style.animationDelay = (Math.random() * 4) + 's';
+    c.appendChild(s);
+  }
+}
+
+function makeFloaters() {
+  const items = ['✨', '⭐', '💫', '🌟', '🎵', '🎶', '🦋', '🌸'];
+  for (let i = 0; i < 8; i++) {
+    const f = document.createElement('div');
+    f.className = 'floater';
+    f.textContent = items[i % items.length];
+    f.style.left = (5 + Math.random() * 85) + '%';
+    f.style.setProperty('--d', (10 + Math.random() * 12).toFixed(1) + 's');
+    f.style.setProperty('--dx', (-30 + Math.random() * 60).toFixed(0) + 'px');
+    f.style.setProperty('--sz', (12 + Math.random() * 10).toFixed(0) + 'px');
+    f.style.animationDelay = (Math.random() * 10) + 's';
+    document.body.appendChild(f);
+  }
+}
+
+function makeSparkles() {
+  const emojis = ['✨', '💫', '⭐'];
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle-deco';
+    s.textContent = emojis[i % emojis.length];
+    s.style.left = (8 + Math.random() * 84) + '%';
+    s.style.top = (10 + Math.random() * 50) + '%';
+    s.style.setProperty('--d', (2.5 + Math.random() * 3).toFixed(1) + 's');
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    document.body.appendChild(s);
+  }
+}
+
+function renderGames() {
+  const t = TX[lang];
+  const grid = $('gamesGrid');
+  grid.innerHTML = '';
+  t.games.forEach((g, i) => {
+    const card = document.createElement('a');
+    card.href = g.file;
+    card.className = 'game-card';
+    card.style.setProperty('--gc1', CARD_COLORS[i][0]);
+    card.style.setProperty('--gc2', CARD_COLORS[i][1]);
+    card.innerHTML =
+      '<div class="gc-icon">' + g.icon + '</div>' +
+      '<div class="gc-info">' +
+        '<div class="gc-num">' + g.num + '</div>' +
+        '<div class="gc-name">' + g.name + '</div>' +
+        '<div class="gc-desc">' + g.desc + '</div>' +
+      '</div>' +
+      '<div class="gc-arrow">›</div>';
+    grid.appendChild(card);
+  });
+}
+
+function updTx() {
+  const t = TX[lang];
+  $('mascotBub').textContent = t.bubble;
+  $('mainTitle').textContent = t.title;
+  $('mainSub').textContent = t.sub;
+  $('gLabel').textContent = t.label;
+  $('gardenTx').textContent = t.garden;
+  $('pwText').innerHTML = t.powered;
+  renderGames();
+}
+
+function setLang(l) {
+  lang = l;
+  $('langDd').classList.remove('show');
+  $('lEN').classList.toggle('sel', l === 'en');
+  $('lZH').classList.toggle('sel', l === 'zh');
+  updTx();
+}
+
+$('langBtn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  $('langDd').classList.toggle('show');
+});
+$('lEN').addEventListener('click', function() { setLang('en'); });
+$('lZH').addEventListener('click', function() { setLang('zh'); });
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#langBtn') && !e.target.closest('#langDd')) {
+    $('langDd').classList.remove('show');
+  }
+});
+
+makeStars();
+makeFloaters();
+makeSparkles();
+setLang('en');
+</script>
+</body>
+</html>
